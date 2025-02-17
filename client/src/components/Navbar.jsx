@@ -6,7 +6,24 @@ import logoIcon from "../assets/RoundTable.png";
 import { jwtDecode } from "jwt-decode";
 import NotificationBell from "./NotificationBell";
 import { io } from "socket.io-client";
-const socket = io("http://localhost:3000");
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  "https://recipe-round-table-0ovf.onrender.com";
+
+const socket = io(SOCKET_URL, {
+  transports: ["websocket", "polling"],
+  reconnectionAttempts: 5,
+  timeout: 10000, // 10 seconds timeout
+});
+
+socket.on("connect", () => {
+  console.log("✅ Connected to WebSocket:", SOCKET_URL);
+});
+
+socket.on("connect_error", (err) => {
+  console.error("❌ WebSocket Connection Error:", err.message);
+});
+
 
 function Navbar({ token, setToken, isAdmin }) {
   const [userId, setUserId] = useState(null);

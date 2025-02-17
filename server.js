@@ -8,7 +8,15 @@ const { Server } = require('socket.io'); // Importing Socket.io
 require('dotenv').config(); //please put your PORT in .env file
 app.use(express.json());
 app.use(require('morgan')('dev'));
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "https://your-frontend.onrender.com",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Allow cookies & authentication
+  })
+);
+
 
 // Serve static files from the "uploads" folder
 app.use("/uploads", express.static("uploads"));
@@ -35,10 +43,14 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: process.env.FRONTEND_URL || "https://your-frontend.onrender.com",
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"], // Force WebSockets
+  allowEIO3: true, // Support older Socket.IO clients
 });
+
 
 // Manage user connections
 io.on("connection", (socket) => {
