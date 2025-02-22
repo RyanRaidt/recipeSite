@@ -4,6 +4,10 @@ import "../App.css";
 import { fetchCategories } from "../API";
 import axios from "axios";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://recipe-round-table-0ovf.onrender.com";
+
 const EditRecipe = () => {
   const { id } = useParams(); // id of the recipe to edit
   const navigate = useNavigate();
@@ -25,7 +29,7 @@ const EditRecipe = () => {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+        const response = await fetch(`${API_URL}/api/recipes/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -131,7 +135,7 @@ const EditRecipe = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+      const response = await fetch(`${API_URL}/api/recipes/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -160,8 +164,8 @@ const EditRecipe = () => {
   
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post( 
-        `http://localhost:3000/api/recipes/${id}/upload-image`, //
+      const response = await axios.post(
+        `${API_URL}/api/recipes/${id}/upload-image`, //
         formData,
         {
           headers: {
