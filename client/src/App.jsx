@@ -22,10 +22,11 @@ import Contact from "./components/Contact";
 import ActivityFeed from "./components/ActivityFeed";
 import { createContext } from "react";
 import { io } from "socket.io-client";
-import { SocketContext } from "./SocketContext.js";
+import { SocketContext } from "./SocketContext.jsx"; 
+
 
 function App() {
-  const socket = io("http://localhost:3000");
+  const socket = io("https://recipe-round-table-0ovf.onrender.com");
 
   const [token, setToken] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);

@@ -1,28 +1,28 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const cors = require('cors');
-const { createServer } = require('http'); // For integrating Socket.IO
-const { Server } = require('socket.io'); // Importing Socket.io 
+const cors = require("cors");
+const { createServer } = require("http"); // For integrating Socket.IO
+const { Server } = require("socket.io"); // Importing Socket.io
 
-
-require('dotenv').config(); //please put your PORT in .env file
+require("dotenv").config(); //please put your PORT in .env file
 app.use(express.json());
-app.use(require('morgan')('dev'));
+app.use(require("morgan")("dev"));
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://your-frontend.onrender.com",
+    origin:
+      process.env.FRONTEND_URL ||
+      "https://recipe-round-table-0ovf.onrender.com",
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Allow cookies & authentication
   })
 );
 
-
 // Serve static files from the "uploads" folder
 app.use("/uploads", express.static("uploads"));
 
 // Health Check Endpoint
-let errorLogs = []; // Store logs globally 
+let errorLogs = []; // Store logs globally
 
 app.get("/api/health", (req, res) => {
   const hasErrors = errorLogs.length > 0;
@@ -43,7 +43,9 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || "https://your-frontend.onrender.com",
+    origin:
+      process.env.FRONTEND_URL ||
+      "https://recipe-round-table-0ovf.onrender.com",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -51,20 +53,19 @@ const io = new Server(httpServer, {
   allowEIO3: true, // Support older Socket.IO clients
 });
 
-
 // Manage user connections
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   // Add user to a specific room based on their user ID
-  socket.on("join", (userId)=> {
+  socket.on("join", (userId) => {
     if (!userId) {
       console.error(`userId not provided for socket.join: ${userId}`);
       return;
     }
     socket.join(`user-${userId}`); // Use a unique room name for each user
     console.log(`User ${userId} joined their rooms.`);
-  })
+  });
 
   socket.on("leave", (userId) => {
     socket.leave(`user-${userId}`);
@@ -75,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
-}); 
+});
 
 // Pass io instance dynamically to routes
 app.use((req, res, next) => {
@@ -87,13 +88,13 @@ app.use((req, res, next) => {
 app.use("/api", require("./api/router"));
 
 app.use((err, req, res, next) => {
-    console.error(err);
-    const status = err.status ?? 500;
-    const message = err.message ?? 'Internal server error.';
-    res.status(status).json({ message });
-  });
-  
-// Start the server  
+  console.error(err);
+  const status = err.status ?? 500;
+  const message = err.message ?? "Internal server error.";
+  res.status(status).json({ message });
+});
+
+// Start the server
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

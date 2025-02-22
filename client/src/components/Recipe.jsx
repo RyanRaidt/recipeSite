@@ -6,6 +6,10 @@ import FollowButton from "./FollowButton";
 import { jwtDecode } from "jwt-decode";
 import ConversionTable from "./ConversionTable";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://recipe-round-table-0ovf.onrender.com";
+
 const Recipe = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
@@ -72,7 +76,7 @@ const Recipe = () => {
   const fetchLikeStatus = async (recipeId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipeId}/like-status`,
+        `${API_URL}/api/recipes/${recipeId}/like-status`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -93,7 +97,7 @@ const Recipe = () => {
   const fetchBookmarkStatus = async (recipeId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipeId}/bookmark-status`,
+        `${API_URL}/api/recipes/${recipeId}/bookmark-status`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -161,7 +165,7 @@ const Recipe = () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this recipe?");
     if (confirmDelete) {
       try {
-        const response = await fetch(`http://localhost:3000/api/recipes/${id}`, {
+        const response = await fetch(`${API_URL}/api/recipes/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -182,7 +186,7 @@ const Recipe = () => {
   const handleToggleLike = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipe.recipeId}/like`,
+        `${API_URL}/api/recipes/${recipe.recipeId}/like`,
         {
           method: "POST",
           headers: {
@@ -210,7 +214,7 @@ const Recipe = () => {
   const handleToggleBookmark = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipe.recipeId}/bookmarks`,
+        `${API_URL}/api/recipes/${recipe.recipeId}/bookmarks`,
         {
           method: "POST",
           headers: {
@@ -240,7 +244,7 @@ const Recipe = () => {
     if (!newComment.trim()) return;
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipe.recipeId}/comments`,
+        `${API_URL}/api/recipes/${recipe.recipeId}/comments`,
         {
           method: "POST",
           headers: {
@@ -264,7 +268,7 @@ const Recipe = () => {
   const handleReportRecipe = async (reason) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipe.recipeId}/report`,
+        `${API_URL}/api/recipes/${recipe.recipeId}/report`,
         {
           method: "POST",
           headers: {
@@ -290,7 +294,7 @@ const Recipe = () => {
   const handleReportComment = async (commentId, reason) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/comments/${commentId}/report`,
+        `${API_URL}/api/comments/${commentId}/report`,
         {
           method: "POST",
           headers: {
@@ -333,7 +337,7 @@ const Recipe = () => {
   };
   
   const handleShareRecipe = async () => {
-    const recipeUrl = `http://localhost:5173/recipe/${recipe.recipeId}`;
+    const recipeUrl = `${API_URL}/recipe/${recipe.recipeId}`;
     const shareText = `Copied to clipboard: Check out this recipe from Recipe Round Table, ${recipe.title}! ${recipeUrl}`;
 
     // Copy to clipboard

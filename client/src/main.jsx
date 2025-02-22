@@ -7,10 +7,8 @@ import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <SocketProvider>
-        <App />
-      </SocketProvider>
-    </BrowserRouter>
+    <SocketProvider>
+      <App />
+    </SocketProvider>
   </StrictMode>
 );

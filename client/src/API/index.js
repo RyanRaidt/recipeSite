@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 //register new user
 export async function fetchRegister(name, email, password) {
   try {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export async function fetchRegister(name, email, password) {
 //login user
 export async function fetchLogin(email, password) {
   try {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,7 +47,7 @@ export async function fetchLogin(email, password) {
 //get user info page
 export async function fetchUser(token) {
   try {
-    const response = await fetch(`${API_URL}/auth/me`, {
+    const response = await fetch(`${API_URL}/api/auth/me`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ export const updateUser = async (userId, updatedProfile) => {
       throw new Error("No authentication token found.");
     }
 
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}`, {
       method: "PUT", // Use PATCH as defined in the backend route
       headers: {
         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -94,7 +94,7 @@ export const updateUser = async (userId, updatedProfile) => {
 export const fetchRecipes = async (page, limit = 12) => {
   try {
     const response = await fetch(
-      `${API_URL}/recipes?page=${page}&limit=${limit}`
+      `${API_URL}/api/recipes?page=${page}&limit=${limit}`
     );
     if (!response.ok) {
       throw new Error("Failed to fetch recipes");
@@ -110,7 +110,7 @@ export const fetchRecipes = async (page, limit = 12) => {
 //fetch a single recipe by id
 export const fetchRecipe = async (id) => {
   try {
-    const response = await fetch(`${API_URL}/recipes/${id}`);
+    const response = await fetch(`${API_URL}/api/recipes/${id}`);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -122,7 +122,7 @@ export const fetchRecipe = async (id) => {
 //fetch categories
 export const fetchCategories = async () => {
   try {
-    const response = await fetch(`${API_URL}/categories`);
+    const response = await fetch(`${API_URL}/api/categories`);
     //console.log(response);
     if (!response.ok) {
       throw new Error("Error in fetchCategories");
@@ -139,7 +139,7 @@ export const fetchCategories = async () => {
 //get category by id
 export const fetchCategoryById = async (categoryId) => {
   try {
-    const response = await fetch(`${API_URL}/categories/${categoryId}/recipes`);
+    const response = await fetch(`${API_URL}/api/categories/${categoryId}/recipes`);
     if (!response.ok) {
       throw new Error("Failed to fetch category");
     }
@@ -160,7 +160,7 @@ export const fetchBookmarkedRecipes = async (
 ) => {
   try {
     const response = await fetch(
-      `${API_URL}/users/${userId}/bookmarks?page=${page}&limit=${limit}`,
+      `${API_URL}/api/users/${userId}/bookmarks?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -183,7 +183,7 @@ export const fetchBookmarkedRecipes = async (
 // fetch a specific user by id
 export const fetchUserById = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/json",
@@ -203,7 +203,7 @@ export const fetchUserById = async (userId) => {
 // toggle follow user
 export const toggleFollow = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/users/${userId}/follow`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/follow`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -224,7 +224,7 @@ export const toggleFollow = async (userId) => {
 // fetch follow status
 export const fetchFollowStatus = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/users/${userId}/follow-status`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/follow-status`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/json",
@@ -244,7 +244,7 @@ export const fetchFollowStatus = async (userId) => {
 // Fetch followers of a specific user
 export const fetchFollowers = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/users/${userId}/followers`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/followers`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/json",
@@ -264,7 +264,7 @@ export const fetchFollowers = async (userId) => {
 // Fetch following users of a specific user
 export const fetchFollowings = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/users/${userId}/followings`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/followings`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/json",
