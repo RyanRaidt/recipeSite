@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../api/config";
 
 //register new user
 export async function fetchRegister(name, email, password) {

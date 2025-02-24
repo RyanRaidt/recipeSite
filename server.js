@@ -9,14 +9,26 @@ app.use(express.json());
 app.use(require("morgan")("dev"));
 app.use(
   cors({
-    origin:
+    origin: [
       process.env.FRONTEND_URL ||
-      "https://recipe-round-table-0ovf.onrender.com",
-    methods: ["GET", "POST"],
+        "https://recipe-round-table-0ovf.onrender.com",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // ✅ Added PUT and DELETE
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Allow cookies & authentication
   })
 );
+
+// ✅ Ensure OPTIONS requests are handled correctly (important for DELETE requests)
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
+
 
 // Serve static files from the "uploads" folder
 app.use("/uploads", express.static("uploads"));
@@ -43,15 +55,19 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin:
+    origin: [
       process.env.FRONTEND_URL ||
-      "https://recipe-round-table-0ovf.onrender.com",
-    methods: ["GET", "POST"],
+        "https://recipe-round-table-0ovf.onrender.com",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // ✅ Added PUT and DELETE
     credentials: true,
   },
   transports: ["websocket", "polling"], // Force WebSockets
   allowEIO3: true, // Support older Socket.IO clients
 });
+
 
 // Manage user connections
 io.on("connection", (socket) => {
