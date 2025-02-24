@@ -3,10 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../App.css";
 import { fetchCategories } from "../API";
 import axios from "axios";
+import { API_URL } from "../../../api/config";
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
 
 const EditRecipe = () => {
   const { id } = useParams(); // id of the recipe to edit

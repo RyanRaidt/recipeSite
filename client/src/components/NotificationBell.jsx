@@ -3,10 +3,7 @@ import { Link } from "react-router-dom";
 import bellIcon from "../assets/bellIcon2.png";
 import "../NotiBell.css";
 import { SocketContext } from "../SocketContext";
-
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
+import { API_URL } from "../../../api/config";
 
 const NotificationBell = () => {
   const socket = useContext(SocketContext); // Get the socket from context

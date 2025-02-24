@@ -5,10 +5,7 @@ import { fetchRecipe } from "../API/index.js";
 import FollowButton from "./FollowButton";
 import { jwtDecode } from "jwt-decode";
 import ConversionTable from "./ConversionTable";
-
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
+import { API_URL } from "../../../api/config.js";
 
 const Recipe = () => {
   const { id } = useParams();

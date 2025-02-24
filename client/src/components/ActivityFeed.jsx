@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
+import { API_URL } from "../../../api/config";
 function ActivityFeed() {
   const [activities, setActivities] = useState([]);
   const [recommendations, setRecommendations] = useState([]);

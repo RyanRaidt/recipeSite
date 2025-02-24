@@ -5,11 +5,8 @@ import userIcon from "../assets/UserIconWhite1.png";
 import logoIcon from "../assets/RoundTable.png";
 import { jwtDecode } from "jwt-decode";
 import NotificationBell from "./NotificationBell";
+import { SOCKET_URL } from "../../../api/config";
 import { io } from "socket.io-client";
-
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
 
 const socket = io(SOCKET_URL, {
   transports: ["websocket", "polling"],

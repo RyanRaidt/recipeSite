@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../../api/config";
 
 function AdminDashboard() {
   // Existing state variables
@@ -21,9 +22,9 @@ function AdminDashboard() {
   const [error, setError] = useState("");
   const [messages, setMessages] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null); 
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
-  const [editingCategoryName, setEditingCategoryName] = useState(""); 
+  const [editingCategoryName, setEditingCategoryName] = useState("");
   const [allUsers, setAllUsers] = useState([]);
 
   // Group users by month
@@ -44,11 +45,11 @@ function AdminDashboard() {
     return Object.entries(counts).map(([month, count]) => ({ month, count }));
   };
 
-   // Fetch all users alphabetically
-   const fetchAllUsers = async () => {
+  // Fetch all users alphabetically
+  const fetchAllUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/users", {
+      const response = await fetch(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -62,14 +63,14 @@ function AdminDashboard() {
     } catch (error) {
       console.error("Error fetching users:", error);
     }
-  }; 
+  };
 
   // Toggle admin status
   const toggleAdminStatus = async (userId, isAdmin) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/api/users/${userId}/toggle-admin`,
+        `${API_URL}/api/users/${userId}/toggle-admin`,
         {
           method: "PUT",
           headers: {
@@ -100,7 +101,7 @@ function AdminDashboard() {
         const token = localStorage.getItem("token");
 
         // Fetch Users
-        const usersResponse = await fetch("http://localhost:3000/api/users", {
+        const usersResponse = await fetch(`${API_URL}/api/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const usersData = await usersResponse.json();
@@ -112,7 +113,7 @@ function AdminDashboard() {
 
         // Fetch Recipes
         const recipesResponse = await fetch(
-          "http://localhost:3000/api/recipes?page=1&limit=1"
+          `${API_URL}/api/recipes?page=1&limit=1`
         );
         const recipesData = await recipesResponse.json();
         if (!recipesResponse.ok)
@@ -122,7 +123,7 @@ function AdminDashboard() {
 
         // Fetch Comments
         const commentsResponse = await fetch(
-          "http://localhost:3000/api/comments",
+          `${API_URL}/api/comments`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -134,7 +135,7 @@ function AdminDashboard() {
 
         // Fetch Reported Recipes
         const reportedRecipesResponse = await fetch(
-          "http://localhost:3000/api/reports/recipes",
+          `${API_URL}/api/reports/recipes`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -144,7 +145,7 @@ function AdminDashboard() {
 
         // Fetch Reported Comments
         const reportedCommentsResponse = await fetch(
-          "http://localhost:3000/api/reports/comments",
+          `${API_URL}/api/reports/comments`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -173,7 +174,7 @@ function AdminDashboard() {
   // Check server health
   const checkServerHealth = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/health");
+      const response = await fetch(`${API_URL}/api/health`);
       const data = await response.json();
 
       if (data.status === "ok") {
@@ -195,7 +196,7 @@ function AdminDashboard() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/categories", {
+      const response = await fetch(`${API_URL}/api/categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,12 +217,11 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-
     fetchAllUsers();
 
     const fetchMessages = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/contact");
+        const response = await fetch(`${API_URL}/api/contact`);
         if (!response.ok) throw new Error("Failed to fetch messages.");
         const data = await response.json();
         setMessages(data);
@@ -236,12 +236,9 @@ function AdminDashboard() {
   const handleDeleteMessage = async (id) => {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/contact/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
+        const response = await fetch(`${API_URL}/api/contact/${id}`, {
+          method: "DELETE",
+        });
 
         if (!response.ok) throw new Error("Failed to delete message.");
 
@@ -258,7 +255,7 @@ function AdminDashboard() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/categories");
+      const response = await fetch(`${API_URL}/api/categories`);
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to fetch categories");
       setCategories(data.categories || []);
@@ -279,17 +276,14 @@ function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/categories/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ categoryName: editingCategoryName }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ categoryName: editingCategoryName }),
+      });
 
       if (!response.ok) throw new Error("Failed to update category");
 
@@ -313,15 +307,12 @@ function AdminDashboard() {
       return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/categories/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to delete category");
 
@@ -338,7 +329,7 @@ function AdminDashboard() {
     ) {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/reports/recipes/${reportId}`,
+          `${API_URL}/api/reports/recipes/${reportId}`,
           {
             method: "DELETE",
             headers: {
@@ -367,7 +358,7 @@ function AdminDashboard() {
     ) {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/reports/comments/${reportId}`,
+          `${API_URL}/api/reports/comments/${reportId}`,
           {
             method: "DELETE",
             headers: {
@@ -472,7 +463,8 @@ function AdminDashboard() {
           {/* Manage Categories Dropdown */}
           <div className="manageCategoriesDropdown">
             <h3>Manage Existing Categories</h3>
-            <select aria-label="Manage Categories Dropdown"
+            <select
+              aria-label="Manage Categories Dropdown"
               value={selectedCategoryId || ""}
               onChange={(e) => {
                 const selectedId = e.target.value;
