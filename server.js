@@ -11,13 +11,17 @@ app.use(
   cors({
     origin: [
       process.env.FRONTEND_URL || "http://localhost:5173",
-      "https://recipe-round-table-frontend.onrender.com", // Add your deployed frontend
+      "https://recipe-round-table-frontend.onrender.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Allow cookies & authentication
+    credentials: true,
   })
 );
+
+// ✅ Ensure OPTIONS requests are properly handled
+app.options("*", cors());
+
 
 
 // Serve static files from the "uploads" folder

@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { fetchBookmarkedRecipes } from "../API/index.js";
 import { jwtDecode } from "jwt-decode";
-
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
+import { API_URL } from "../../../api/config.js";
 
 const Bookmarks = () => {
   const location = useLocation();
