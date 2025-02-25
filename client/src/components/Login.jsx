@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google"
 import { jwtDecode } from "jwt-decode";
 import { fetchLogin } from "../API/index.js"; // Importing the fetchLogin function
 import { Navigate, useNavigate } from "react-router-dom";
-
+import { API_URL } from "../../../api/config.js";
 const LoginUser = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +45,7 @@ const LoginUser = ({ setToken }) => {
       const { credential } = credentialResponse;
   
       // Send Google credential token to the backend for validation
-      const response = await fetch(`http://localhost:3000/api/auth/google-login`, {
+      const response = await fetch(`${API_URL}/api/auth/google-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

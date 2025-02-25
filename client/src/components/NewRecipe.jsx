@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchCategories } from "../API";
 import "../App.css";
 import axios from "axios";
-
+import { API_URL } from "../../../api/config.js";
 const NewRecipe = () => {
   const navigate = useNavigate();
 
@@ -14,13 +14,15 @@ const NewRecipe = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(""); // State for selected category's id
   const [loadingCategories, setLoadingCategories] = useState(true); // Loading state for categories
   const [servingSize, setServingSize] = useState(1); // Default serving size
-  const [ingredients, setIngredients] = useState([{ name: "", quantity: "", unit: "" }]);
+  const [ingredients, setIngredients] = useState([
+    { name: "", quantity: "", unit: "" },
+  ]);
   const [steps, setSteps] = useState([""]);
   const [error, setError] = useState(null); // Error state for categories
 
   const [recipeImage, setRecipeImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");  
-  
+  const [imagePreview, setImagePreview] = useState("");
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -33,10 +35,10 @@ const NewRecipe = () => {
         setLoadingCategories(false);
       }
     };
-  
+
     loadCategories();
   }, []);
-  
+
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { name: "", quantity: "", unit: "" }]);
   };
@@ -57,13 +59,13 @@ const NewRecipe = () => {
     e.preventDefault();
 
     const formattedSteps = steps
-    .filter((step) => step.trim()) 
-    .map((instruction, index) => ({ 
-      stepNumber: index + 1,
-      instruction, 
-    }));
+      .filter((step) => step.trim())
+      .map((instruction, index) => ({
+        stepNumber: index + 1,
+        instruction,
+      }));
 
-    const formattedIngredients = ingredients.map((ingredient) => ({ 
+    const formattedIngredients = ingredients.map((ingredient) => ({
       ingredientName: ingredient.name,
       quantityAmount: ingredient.quantity.toString(),
       quantityUnit: ingredient.unit,
@@ -79,33 +81,33 @@ const NewRecipe = () => {
     recipeData.append("ingredients", JSON.stringify(formattedIngredients));
 
     try {
-    const token = localStorage.getItem("token"); // Retrieve token from localStorage
-    const response = await axios.post("http://localhost:3000/api/recipes", recipeData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    
-    if (response.status===201) {
+      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      const response = await axios.post(`${API_URL}/api/recipes`, recipeData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 201) {
         alert("Recipe created successfully!");
         navigate("/");
-    } else {
-      console.error("Failed to submit recipe:", response);
+      } else {
+        console.error("Failed to submit recipe:", response);
+      }
+    } catch (error) {
+      console.error("Error submitting recipe:", error);
     }
-  } catch (error) {
-    console.error("Error submitting recipe:", error);
-  }
-};
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setRecipeImage(file);
-    
+
     // Generate preview URL using FileReader
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result);  // Set the preview URL
+      setImagePreview(reader.result); // Set the preview URL
     };
     if (file) reader.readAsDataURL(file); // Read the file as a data URL
   };
@@ -143,8 +145,8 @@ const NewRecipe = () => {
           </label>
         </div>
 
-         {/* Category Dropdown */}
-         <div>
+        {/* Category Dropdown */}
+        <div>
           <label htmlFor="category">
             Category:
             {loadingCategories ? (
@@ -153,20 +155,20 @@ const NewRecipe = () => {
               <p className="error">{error}</p>
             ) : (
               <select
-              id="category"
-              value={selectedCategoryId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Select a category
-              </option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.categoryName}
+                id="category"
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Select a category
                 </option>
-              ))}
-            </select>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.categoryName}
+                  </option>
+                ))}
+              </select>
             )}
           </label>
         </div>
@@ -196,7 +198,15 @@ const NewRecipe = () => {
             Image:
             {imagePreview && (
               <div className="image-preview">
-                <img src={imagePreview} alt="Recipe Preview" style={{ width: "200px", height: "200px", objectFit: "cover" }} />
+                <img
+                  src={imagePreview}
+                  alt="Recipe Preview"
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    objectFit: "cover",
+                  }}
+                />
               </div>
             )}
             <input
@@ -213,62 +223,64 @@ const NewRecipe = () => {
           <div>
             <h3>Ingredients</h3>
             {ingredients.map((ingredient, index) => (
-            <div key={index} className="addIngredientContainer">
-              <div  className="ingredient-row">
-                <input
-                  type="text"
-                  placeholder="Ingredient name"
-                  value={ingredient.name}
-                  onChange={(e) =>
-                    setIngredients(
-                      ingredients.map((ing, i) =>
-                        i === index ? { ...ing, name: e.target.value } : ing
+              <div key={index} className="addIngredientContainer">
+                <div className="ingredient-row">
+                  <input
+                    type="text"
+                    placeholder="Ingredient name"
+                    value={ingredient.name}
+                    onChange={(e) =>
+                      setIngredients(
+                        ingredients.map((ing, i) =>
+                          i === index ? { ...ing, name: e.target.value } : ing
+                        )
                       )
-                    )
-                  }
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Quantity"
-                  value={ingredient.quantity}
-                  onChange={(e) =>
-                    setIngredients(
-                      ingredients.map((ing, i) =>
-                        i === index ? { ...ing, quantity: e.target.value } : ing
+                    }
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Quantity"
+                    value={ingredient.quantity}
+                    onChange={(e) =>
+                      setIngredients(
+                        ingredients.map((ing, i) =>
+                          i === index
+                            ? { ...ing, quantity: e.target.value }
+                            : ing
+                        )
                       )
-                    )
-                  }
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Unit (e.g., cups, tsp)"
-                  value={ingredient.unit}
-                  onChange={(e) =>
-                    setIngredients(
-                      ingredients.map((ing, i) =>
-                        i === index ? { ...ing, unit: e.target.value } : ing
+                    }
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Unit (e.g., cups, tsp)"
+                    value={ingredient.unit}
+                    onChange={(e) =>
+                      setIngredients(
+                        ingredients.map((ing, i) =>
+                          i === index ? { ...ing, unit: e.target.value } : ing
+                        )
                       )
-                    )
-                  }
-                />
+                    }
+                  />
+                </div>
+                {ingredients.length > 1 && (
+                  <button
+                    id="removeIngredientBtn"
+                    type="button"
+                    onClick={() => handleRemoveIngredient(index)}
+                  >
+                    <p>-</p>
+                  </button>
+                )}
               </div>
-              {ingredients.length > 1 && (
-                <button 
-                  id="removeIngredientBtn"
-                  type="button" 
-                  onClick={() => handleRemoveIngredient(index)}
-                >
-                  <p>-</p>
-                </button>
-          )}
-            </div>
-          ))}
+            ))}
           </div>
-          <button   
-            id="addIngredientBtn" 
-            type="button" 
+          <button
+            id="addIngredientBtn"
+            type="button"
             onClick={handleAddIngredient}
           >
             <p>Add Ingredient</p>
@@ -277,42 +289,37 @@ const NewRecipe = () => {
 
         {/* Steps */}
         <div>
-            <h3 id="stepsHeader">Steps</h3>
-            {steps.map((step, index) => (
-              <div key={index} className="step-row">
-                <textarea
-                  placeholder={`Step ${index + 1}`}
-                  value={step}
-                  onChange={(e) =>
-                    setSteps(steps.map((s, i) => (i === index ? e.target.value : s)))
-                  }
-                  required
-                />
-                {steps.length > 1 && (
-                  <button   
-                    id="removeStepBtn" 
-                    type="button"
-                    onClick={() => handleRemoveStep(index)}
-                  >
-                    <p>-</p>
-                  </button>
-        )}
-              </div>
-            ))}
-            <button 
-              id="addStepBtn" 
-              type="button" 
-              onClick={handleAddStep}
-            >
-             <p>Add Step</p>
-            </button>
+          <h3 id="stepsHeader">Steps</h3>
+          {steps.map((step, index) => (
+            <div key={index} className="step-row">
+              <textarea
+                placeholder={`Step ${index + 1}`}
+                value={step}
+                onChange={(e) =>
+                  setSteps(
+                    steps.map((s, i) => (i === index ? e.target.value : s))
+                  )
+                }
+                required
+              />
+              {steps.length > 1 && (
+                <button
+                  id="removeStepBtn"
+                  type="button"
+                  onClick={() => handleRemoveStep(index)}
+                >
+                  <p>-</p>
+                </button>
+              )}
+            </div>
+          ))}
+          <button id="addStepBtn" type="button" onClick={handleAddStep}>
+            <p>Add Step</p>
+          </button>
         </div>
 
         {/* Submit Button */}
-        <button 
-          id="submitRecipeBtn" 
-          type="submit"
-        >
+        <button id="submitRecipeBtn" type="submit">
           Submit Recipe
         </button>
       </form>

@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import FollowButton from "./FollowButton";
 import Modal from "./Modal.jsx";  
 import axios from "axios";
-
+import { API_URL } from "../../../api/config.js";
 const GetUser = ({setToken}) => {
   const [userInfo, setUserInfo] = useState({
     recipes: [], // Ensure recipes is always an array
@@ -208,7 +208,7 @@ const GetUser = ({setToken}) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `http://localhost:3000/api/users/${userId}/upload-profile`,
+        `${API_URL}/api/users/${userId}/upload-profile`,
         formData,
         {
           headers: {
@@ -234,12 +234,14 @@ const GetUser = ({setToken}) => {
             <div id="userPicAndDetailsContainer">
               <div id="profileBorder">
                 <div id="userProfilePicContainer">
-                  <img src={
-                        userInfo.profileUrl?.startsWith("http") 
-                          ? userInfo.profileUrl // Use external URLs as-is
-                          : `http://localhost:3000${userInfo.profileUrl}` // Prepend base URL for local paths
-                      } 
-                      alt="User Profile" />
+                  <img
+                    src={
+                      userInfo.profileUrl?.startsWith("http")
+                        ? userInfo.profileUrl // Use external URLs as-is
+                        : `${API_URL}${userInfo.profileUrl}` // Prepend base URL for local paths
+                    }
+                    alt="User Profile"
+                  />
                 </div>
               </div>
               <div id="userDetailsContainer">
@@ -252,7 +254,8 @@ const GetUser = ({setToken}) => {
                         type="text"
                         name="name"
                         value={editProfile.name}
-                        onChange={handleProfileChange}/>
+                        onChange={handleProfileChange}
+                      />
                     </label>
                     <label>
                       <strong>Email:</strong>
@@ -260,15 +263,17 @@ const GetUser = ({setToken}) => {
                         type="email"
                         name="email"
                         value={editProfile.email}
-                        onChange={handleProfileChange}/>
+                        onChange={handleProfileChange}
+                      />
                     </label>
                     <label>
                       <strong>Profile Picture URL:</strong>
                       <br />
-                      <input 
-                        type="file" 
-                        onChange={handleProfileImageUpload} 
-                        name="profileUrl" />
+                      <input
+                        type="file"
+                        onChange={handleProfileImageUpload}
+                        name="profileUrl"
+                      />
                     </label>
                     <br />
                     <label>
@@ -277,7 +282,8 @@ const GetUser = ({setToken}) => {
                         type="text"
                         name="userTitle"
                         value={editProfile.userTitle}
-                        onChange={handleProfileChange}/>
+                        onChange={handleProfileChange}
+                      />
                     </label>
                     <br />
                     <label>
@@ -287,73 +293,105 @@ const GetUser = ({setToken}) => {
                         rows="4"
                         cols="39"
                         value={editProfile.bio}
-                        onChange={handleProfileChange}/>
+                        onChange={handleProfileChange}
+                      />
                     </label>
                     <div id="editBtnContainer">
-                      <button id="editSaveBtn" type="button" onClick={handleSaveProfile}>
+                      <button
+                        id="editSaveBtn"
+                        type="button"
+                        onClick={handleSaveProfile}
+                      >
                         Save
                       </button>
-                      <button id="editCancelBtn" type="button" onClick={handleEditToggle}>
+                      <button
+                        id="editCancelBtn"
+                        type="button"
+                        onClick={handleEditToggle}
+                      >
                         Cancel
                       </button>
                     </div>
                   </form>
                 ) : (
                   <div id="mainDetailView">
-                    <p><strong>Name:</strong> {userInfo.name}</p>
-                    <p><strong>Email:</strong> {userInfo.email}</p>
-                    <p><strong>Title:</strong> {userInfo.userTitle || "Not provided"}</p>
-                    <p><strong>Bio:</strong> {userInfo.bio || "Not provided"}</p>
-                    {isAdmin && <p><strong>Admin:</strong> Yes</p>}
-
+                    <p>
+                      <strong>Name:</strong> {userInfo.name}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {userInfo.email}
+                    </p>
+                    <p>
+                      <strong>Title:</strong>{" "}
+                      {userInfo.userTitle || "Not provided"}
+                    </p>
+                    <p>
+                      <strong>Bio:</strong> {userInfo.bio || "Not provided"}
+                    </p>
+                    {isAdmin && (
+                      <p>
+                        <strong>Admin:</strong> Yes
+                      </p>
+                    )}
                     <span className="cursor" onClick={handleViewFollowers}>
                       <strong>Followers:</strong>{" "}
-                      {followerCount >= 1000 ? (followerCount / 1000).toFixed(1) + "k" : followerCount}
+                      {followerCount >= 1000
+                        ? (followerCount / 1000).toFixed(1) + "k"
+                        : followerCount}
                     </span>{" "}
-                    <span className="cursor"onClick={handleViewFollowings}>
+                    <span className="cursor" onClick={handleViewFollowings}>
                       <strong>Following:</strong>{" "}
-                      {followingCount >= 1000 ? (followingCount / 1000).toFixed(1) + "k" : followingCount}
+                      {followingCount >= 1000
+                        ? (followingCount / 1000).toFixed(1) + "k"
+                        : followingCount}
                     </span>
-
-                    <button id="editProfileBtn" onClick={handleEditToggle}>Edit Profile</button>
+                    <button id="editProfileBtn" onClick={handleEditToggle}>
+                      Edit Profile
+                    </button>
                   </div>
                 )}
               </div>
 
               <Modal
-                isOpen={modalOpen} 
+                isOpen={modalOpen}
                 onClose={handleCloseModal}
                 title={modalTitle}
               >
                 {modalContent}
               </Modal>
-
             </div>
             {!editMode && (
               <button onClick={handleLogout} id="logoutButton">
-              Logout
-            </button>
+                Logout
+              </button>
             )}
 
-            <h3 className="header" id="yourRecipesHeader">Your Recipes</h3>
-                {userInfo.recipes && userInfo.recipes.length > 0 ? (
-                    <div className="recipeList">
-                    {userInfo.recipes.map((recipe) => (
-                        <div key={recipe.recipeId} className="recipeCard">
-                            <Link to={`/recipe/${recipe.recipeId}`}>
-                                <div id="profileImgContainer">
-                                    <img 
-                                    src={recipe.recipeUrl.includes("http") ? recipe.recipeUrl:`http://localhost:3000${recipe.recipeUrl}`}
-                                    className="image" 
-                                    alt={recipe.title} />
-                                </div>
-                            </Link>
-                            <div id="recipeBar">
-                                <h4>{recipe.title}</h4>
-                            </div>
-                        </div>
-                    ))}
+            <h3 className="header" id="yourRecipesHeader">
+              Your Recipes
+            </h3>
+            {userInfo.recipes && userInfo.recipes.length > 0 ? (
+              <div className="recipeList">
+                {userInfo.recipes.map((recipe) => (
+                  <div key={recipe.recipeId} className="recipeCard">
+                    <Link to={`/recipe/${recipe.recipeId}`}>
+                      <div id="profileImgContainer">
+                        <img
+                          src={
+                            recipe.recipeUrl.includes("http")
+                              ? recipe.recipeUrl
+                              : `${API_URL}${recipe.recipeUrl}`
+                          }
+                          className="image"
+                          alt={recipe.title}
+                        />
+                      </div>
+                    </Link>
+                    <div id="recipeBar">
+                      <h4>{recipe.title}</h4>
                     </div>
+                  </div>
+                ))}
+              </div>
             ) : (
               <p id="noRecipes">No recipes found.</p>
             )}
@@ -363,7 +401,11 @@ const GetUser = ({setToken}) => {
         )
       ) : (
         <div className="loginComponent">
-          <p><strong>You are not logged in. Please log in to view your profile.</strong></p>
+          <p>
+            <strong>
+              You are not logged in. Please log in to view your profile.
+            </strong>
+          </p>
           <br />
           <button onClick={handleLogin} id="loginButton">
             Login

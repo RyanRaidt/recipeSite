@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { API_URL } from "../../../api/config";
+import { API_URL } from "../../../api/config.js";
 function ActivityFeed() {
   const [activities, setActivities] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -71,19 +71,26 @@ function ActivityFeed() {
         <ul className="activityFeed">
           {activities.map((activity) => (
             <li key={activity.id}>
-              <Link to={`/recipe/${activity.recipe?.recipeId}`} className="activity-link">
+              <Link
+                to={`/recipe/${activity.recipe?.recipeId}`}
+                className="activity-link"
+              >
                 <div className="activity-item">
                   {activity.recipe && activity.recipe.recipeUrl ? (
                     <div className="feedImgContainer">
                       <img
-                        src={activity.recipe.recipeUrl.includes("https")
-                          ? activity.recipe.recipeUrl
-                          :`http://localhost:3000${activity.recipe.recipeUrl}`}
+                        src={
+                          activity.recipe.recipeUrl.includes("https")
+                            ? activity.recipe.recipeUrl
+                            : `${API_URL}${activity.recipe.recipeUrl}`
+                        } // Use deployed API URL
                         alt={activity.recipe?.title || "Recipe Image"}
                         className="activityImg"
                       />
                     </div>
-                  ) : ( "/placeholder-image.png")}
+                  ) : (
+                    "/placeholder-image.png"
+                  )}
                   <div className="activityFeedInfo">
                     <strong>{activity.user?.name || "Unknown User"}</strong>
                     {renderActivityDetails(activity)}
@@ -96,7 +103,7 @@ function ActivityFeed() {
         </ul>
       )}
       <div className="recommendations">
-        <h3 style={{margin: "0 auto"}}>Recipes You Might Like</h3>
+        <h3 style={{ margin: "0 auto" }}>Recipes You Might Like</h3>
 
         {recommendations.length === 0 ? (
           <p>No recommendations available at the moment.</p>
@@ -107,14 +114,22 @@ function ActivityFeed() {
                 <Link to={`/recipe/${recipe.recipeId}`}>
                   {recipe.recipeUrl ? (
                     <div className="feedImgContainer">
-                      <img src={recipe.recipeUrl.includes("https")
-                        ? recipe.recipeUrl:`http://localhost:3000${recipe.recipeUrl}` } 
+                      <img
+                        src={
+                          recipe.recipeUrl.includes("https")
+                            ? recipe.recipeUrl
+                            : `${API_URL}${recipe.recipeUrl}` // Use deployed API URL
+                        }
                         alt={recipe.title}
                       />
                     </div>
-                  ) : ( "/placeholder-image.png")}
+                  ) : (
+                    "/placeholder-image.png"
+                  )}
                   <h4 className="recipeFeedInfo">{recipe.title}</h4>
-                  <p className="recipeFeedInfo">By {recipe.user?.name || "Unknown Author"}</p>
+                  <p className="recipeFeedInfo">
+                    By {recipe.user?.name || "Unknown Author"}
+                  </p>
                 </Link>
               </li>
             ))}

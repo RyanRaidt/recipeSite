@@ -221,7 +221,7 @@ const EditRecipe = () => {
             ) : (
               <select
                 id="category"
-                value={newSelectedCategoryId||selectedCategory}
+                value={newSelectedCategoryId || selectedCategory}
                 onChange={(e) => setNewSelectedCategoryId(e.target.value)}
                 required
               >
@@ -262,7 +262,7 @@ const EditRecipe = () => {
               src={
                 recipe.recipeUrl.startsWith("http")
                   ? recipe.recipeUrl
-                  : `http://localhost:3000${recipe.recipeUrl}`
+                  : `${API_URL}${recipe.recipeUrl}` // Use deployed API URL
               }
               alt="Recipe"
               style={{ width: "200px", height: "auto" }}
@@ -274,9 +274,7 @@ const EditRecipe = () => {
         <div>
           <label htmlFor="recipeUrl">
             Choose file to change image URL:
-            <input type="file" 
-                   onChange={handleImageUpload} 
-                   name = "recipeUrl"/>
+            <input type="file" onChange={handleImageUpload} name="recipeUrl" />
           </label>
         </div>
         <div>
@@ -288,21 +286,27 @@ const EditRecipe = () => {
                   type="text"
                   placeholder="Ingredient name"
                   value={ingredient.name}
-                  onChange={(e) => handleIngredientChange(index, "name", e.target.value)}
+                  onChange={(e) =>
+                    handleIngredientChange(index, "name", e.target.value)
+                  }
                   required
                 />
                 <input
                   type="text"
                   placeholder="Quantity"
                   value={ingredient.quantity}
-                  onChange={(e) => handleIngredientChange(index, "quantity", e.target.value)}
+                  onChange={(e) =>
+                    handleIngredientChange(index, "quantity", e.target.value)
+                  }
                   required
                 />
                 <input
                   type="text"
                   placeholder="Unit"
                   value={ingredient.unit}
-                  onChange={(e) => handleIngredientChange(index, "unit", e.target.value)}
+                  onChange={(e) =>
+                    handleIngredientChange(index, "unit", e.target.value)
+                  }
                 />
               </div>
               {recipe.ingredients.length > 1 && (
@@ -336,7 +340,7 @@ const EditRecipe = () => {
               />
               {recipe.steps.length > 1 && (
                 <button
-                id="removeStepBtn"
+                  id="removeStepBtn"
                   type="button"
                   className="remove-btn"
                   onClick={() => handleRemoveStep(index)}
@@ -346,19 +350,11 @@ const EditRecipe = () => {
               )}
             </div>
           ))}
-          <button
-            id="addStepBtn"
-            type="button"
-            onClick={handleAddStep}
-          >
+          <button id="addStepBtn" type="button" onClick={handleAddStep}>
             Add Step
           </button>
         </div>
-        <button 
-          id="submitRecipeBtn" 
-          type="submit" 
-          className="submit-btn"
-        >
+        <button id="submitRecipeBtn" type="submit" className="submit-btn">
           Submit Changes
         </button>
       </form>

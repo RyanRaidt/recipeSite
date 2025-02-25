@@ -49,18 +49,19 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      "http://localhost:5173", // Local development
-      "https://recipe-round-table-frontend.onrender.com", // Deployed frontend
-    ],
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://recipe-round-table-frontend.onrender.com" // Only allow the deployed frontend in production
+        : [
+            "http://localhost:5173",
+            "https://recipe-round-table-frontend.onrender.com",
+          ], // Allow both in development
     methods: ["GET", "POST"],
     credentials: true,
   },
   transports: ["websocket", "polling"], // Force WebSockets
   allowEIO3: true, // Support older Socket.IO clients
 });
-
-
 
 // Manage user connections
 io.on("connection", (socket) => {

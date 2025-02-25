@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-
+import { API_URL } from "../../../api/config.js";
 function CommentsSection({ recipeId }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
@@ -11,7 +11,7 @@ function CommentsSection({ recipeId }) {
     const fetchComments = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/comments?recipeId=${recipeId}`
+          `${API_URL}/api/comments?recipeId=${recipeId}`
         );
         const data = await response.json();
         setComments(data.comments || []);
@@ -33,7 +33,7 @@ function CommentsSection({ recipeId }) {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/comments", {
+      const response = await fetch(`${API_URL}/api/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +58,7 @@ function CommentsSection({ recipeId }) {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/api/comments/${commentId}/report`,
+        `${API_URL}/api/comments/${commentId}/report`,
         {
           method: "POST",
           headers: {

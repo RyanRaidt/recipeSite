@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { GoogleLogin } from "@react-oauth/google"
 import { jwtDecode } from "jwt-decode";
-
+import { API_URL } from "../../../api/config.js";
 const RegisterUser = ({ setToken }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -42,7 +42,7 @@ const RegisterUser = ({ setToken }) => {
     try {
         const { credential } = credentialResponse;
 
-        const response = await fetch('http://localhost:3000/api/auth/google-login', {
+        const response = await fetch(`${API_URL}/api/auth/google-login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
