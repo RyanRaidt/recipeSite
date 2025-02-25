@@ -9,14 +9,16 @@ app.use(express.json());
 app.use(require("morgan")("dev"));
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL ||
-      "https://recipe-round-table-0ovf.onrender.com",
-    methods: ["GET", "POST"],
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:5173",
+      "https://recipe-round-table-frontend.onrender.com", // Add your deployed frontend
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Allow cookies & authentication
   })
 );
+
 
 // Serve static files from the "uploads" folder
 app.use("/uploads", express.static("uploads"));
