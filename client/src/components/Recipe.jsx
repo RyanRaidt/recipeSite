@@ -6,6 +6,14 @@ import FollowButton from "./FollowButton";
 import { jwtDecode } from "jwt-decode";
 import ConversionTable from "./ConversionTable";
 import { API_URL } from "../../../api/config.js";
+import likeIcon from "../assets/likesIcon.png";
+import likeIconFilled from "../assets/likesIconFilled.png";
+import bookmarksIcon from "../assets/bookmarksIcon.png";
+import bookmarksIconFilled from "../assets/bookmarksIconFilled.png";
+import reportFlag from "../assets/report-flag.png";
+import printIcon from "../assets/PrintRecipe1.png";
+import shareIcon from "../assets/ShareRecipe1.png";
+import conversionIcon from "../assets/conversion-icon.png";
 
 const Recipe = () => {
   const { id } = useParams();
@@ -355,9 +363,11 @@ const Recipe = () => {
         <div id="recipeHeaderContainer">
           <div id="recipeHeaderImg">
             <img
-              src={recipe.recipeUrl.includes("https") 
-                ? recipe.recipeUrl
-                :`http://localhost:3000${recipe.recipeUrl}`}
+              src={
+                recipe.recipeUrl.includes("https")
+                  ? recipe.recipeUrl
+                  : `http://localhost:3000${recipe.recipeUrl}`
+              }
               className="image"
               alt={recipe.title}
               loading="lazy"
@@ -379,45 +389,42 @@ const Recipe = () => {
                 <FollowButton authorId={recipe.user.userId} />
               )}
             </div>
-              <p>{recipe.description}</p>
-              <p>Serving Size: {recipe.servingSize}</p>
-              <p>Category: {recipe.categories[0].categoryName}</p>
-              <div id="recipeIconContainer" className="no-print">
-                <button className="recipeIcon" onClick={handleToggleLike}>
-                  <img
-                    src={
-                      liked
-                        ? "../src/assets/likesIconFilled.png"
-                        : "../src/assets/likesIcon.png"
-                    }
-                    alt={liked ? "Liked" : "Like"}
-                  />
-                  {recipe._count.likes}
-                </button>
+            <p>{recipe.description}</p>
+            <p>Serving Size: {recipe.servingSize}</p>
+            <p>Category: {recipe.categories[0].categoryName}</p>
+            <div id="recipeIconContainer" className="no-print">
+              <button className="recipeIcon" onClick={handleToggleLike}>
+                <img
+                  src={liked ? likeIconFilled : likeIcon}
+                  alt={liked ? "Liked" : "Like"}
+                />
+
+                {recipe._count.likes}
+              </button>
 
               <button className="recipeIcon" onClick={handleToggleBookmark}>
                 <img
-                  src={
-                    bookmarked
-                      ? "../src/assets/bookmarksIconFilled.png"
-                      : "../src/assets/bookmarksIcon.png"
-                  }
+                  src={bookmarked ? bookmarksIconFilled : bookmarksIcon}
                   alt={bookmarked ? "Bookmarked" : "Bookmark"}
                 />
+
                 {recipe._count.bookmarks}
               </button>
 
-            {/* Conditional Edit/Delete Buttons */}
-            {(loggedInUserId === recipe.user.userId || isAdmin) && (
-            <div className="action-buttons">
-            <button className="edit-button" onClick={handleEditRecipe}>
-            Edit Recipe
-            </button>
-            <button className="delete-button" onClick={handleDeleteRecipe}>
-            Delete Recipe
-            </button>
-            </div>
-          )}
+              {/* Conditional Edit/Delete Buttons */}
+              {(loggedInUserId === recipe.user.userId || isAdmin) && (
+                <div className="action-buttons">
+                  <button className="edit-button" onClick={handleEditRecipe}>
+                    Edit Recipe
+                  </button>
+                  <button
+                    className="delete-button"
+                    onClick={handleDeleteRecipe}
+                  >
+                    Delete Recipe
+                  </button>
+                </div>
+              )}
 
               {/* Report Button with Conditional Dropdown */}
               <div id="reportRecipeContainer">
@@ -431,11 +438,11 @@ const Recipe = () => {
                       background: "none",
                       border: "none",
                       padding: "0",
-                      boxShadow: "none"
+                      boxShadow: "none",
                     }}
                   >
                     <img
-                      src="../src/assets/report-flag.png"
+                      src={reportFlag}
                       alt="Report"
                       style={{ width: "20px", height: "20px" }}
                     />
@@ -493,18 +500,18 @@ const Recipe = () => {
           <h3>
             Ingredients
             <img
-            src="../src/assets/conversion-icon.png" // Replace with your icon path
-            alt="Conversion Icon"
-            title="Toggle Conversion Table"
-            className="conversionIcon"
-            onClick={() => setShowConversionTable((prev) => !prev)} // Toggle the table
-            style={{
-            cursor: "pointer",
-            marginLeft: "10px",
-            width: "24px", // Adjust as needed
-            height: "24px", // Adjust as needed
-  }}
-/>
+              src="../src/assets/conversion-icon.png" // Replace with your icon path
+              alt="Conversion Icon"
+              title="Toggle Conversion Table"
+              className="conversionIcon"
+              onClick={() => setShowConversionTable((prev) => !prev)} // Toggle the table
+              style={{
+                cursor: "pointer",
+                marginLeft: "10px",
+                width: "24px", // Adjust as needed
+                height: "24px", // Adjust as needed
+              }}
+            />
           </h3>
           <ul id="ingredientsList">
             {recipe.ingredients.map((ingredient, index) => (
@@ -547,7 +554,7 @@ const Recipe = () => {
           Print Recipe
         </button>
         <button className="recipeBtn iconBtn" onClick={handleShareRecipe}>
-          <img 
+          <img
             id="shareRecipeIcon"
             src="../src/assets/ShareRecipe1.png"
             alt="share recipe icon"
@@ -565,7 +572,6 @@ const Recipe = () => {
                       <strong>{comment.user.name}</strong>
                     </Link>
                     - {timeAgo(comment.createdAt)}
-                    
                     {/* Report Comment with Conditional Dropdown */}
                     <div>
                       {!commentDropdownVisible[comment.id] ? (
@@ -624,10 +630,11 @@ const Recipe = () => {
                                   [comment.id]: false, // Hide the dropdown for this comment
                                 }));
                               } else {
-                                alert("Please select a reason before reporting.");
+                                alert(
+                                  "Please select a reason before reporting."
+                                );
                               }
                             }}
-                            
                           >
                             Submit
                           </button>
@@ -638,7 +645,6 @@ const Recipe = () => {
                                 [comment.id]: false, // Cancel and hide dropdown
                               }))
                             }
-                            
                           >
                             Cancel
                           </button>
@@ -668,10 +674,7 @@ const Recipe = () => {
           </div>
         </div>
         {/* Back to Previous Page Button */}
-        <button 
-          className="recipeBtn" 
-          onClick={() => window.history.back()}
-        >
+        <button className="recipeBtn" onClick={() => window.history.back()}>
           Back
         </button>
       </div>
