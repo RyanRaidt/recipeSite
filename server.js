@@ -7,17 +7,19 @@ const { Server } = require("socket.io"); // Importing Socket.io
 require("dotenv").config(); //please put your PORT in .env file
 app.use(express.json());
 app.use(require("morgan")("dev"));
-app.use(
-  cors({
+const io = new Server(httpServer, {
+  cors: {
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:5173",
-      "https://recipe-round-table-frontend.onrender.com", // Add your deployed frontend
+      "http://localhost:5173", // Local development
+      "https://recipe-round-table-frontend.onrender.com", // Deployed frontend
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Allow cookies & authentication
-  })
-);
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket", "polling"], // Force WebSockets
+  allowEIO3: true, // Support older Socket.IO clients
+});
+
 
 
 // Serve static files from the "uploads" folder

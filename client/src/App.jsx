@@ -26,7 +26,11 @@ import { SocketContext } from "./SocketContext.jsx";
 
 
 function App() {
-  const socket = io("https://recipe-round-table-0ovf.onrender.com");
+  const SOCKET_URL =
+    import.meta.env.VITE_SOCKET_URL ||
+    "https://recipe-round-table-0ovf.onrender.com";
+  const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
+
 
   const [token, setToken] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
