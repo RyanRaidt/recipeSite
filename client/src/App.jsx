@@ -17,7 +17,6 @@ import React from "react";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import "./responsive.css";
 import Contact from "./components/Contact";
 import ActivityFeed from "./components/ActivityFeed";
 import { createContext } from "react";

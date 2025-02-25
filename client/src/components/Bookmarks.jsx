@@ -3,6 +3,10 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { fetchBookmarkedRecipes } from "../API/index.js";
 import { jwtDecode } from "jwt-decode";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://recipe-round-table-0ovf.onrender.com";
+
 const Bookmarks = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,7 +78,7 @@ const Bookmarks = () => {
   const handleRemoveBookmark = async (recipeId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/recipes/${recipeId}/bookmarks`,
+        `${API_URL}/api/recipes/${recipeId}/bookmarks`,
         {
           method: "POST",
           headers: {
@@ -123,7 +127,7 @@ const Bookmarks = () => {
                   src={
                     recipe.recipeUrl.includes("https")
                       ? recipe.recipeUrl
-                      : `http://localhost:3000${recipe.recipeUrl}`
+                      : `${API_URL}${recipe.recipeUrl}`
                   }
                   className="image"
                   alt={recipe.title}
