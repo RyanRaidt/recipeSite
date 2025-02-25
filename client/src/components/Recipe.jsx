@@ -14,9 +14,6 @@ import reportFlag from "../assets/report-flag.png";
 import printRecipeIcon from "../assets/PrintRecipe1.png";
 import shareRecipeIcon from "../assets/ShareRecipe1.png";
 import conversionIcon from "../assets/conversion-icon.png";
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://recipe-round-table-0ovf.onrender.com";
 
 const Recipe = () => {
   const { id } = useParams();
