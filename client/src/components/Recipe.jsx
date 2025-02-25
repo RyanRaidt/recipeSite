@@ -11,9 +11,12 @@ import likeIconFilled from "../assets/likesIconFilled.png";
 import bookmarksIcon from "../assets/bookmarksIcon.png";
 import bookmarksIconFilled from "../assets/bookmarksIconFilled.png";
 import reportFlag from "../assets/report-flag.png";
-import printIcon from "../assets/PrintRecipe1.png";
-import shareIcon from "../assets/ShareRecipe1.png";
+import printRecipeIcon from "../assets/PrintRecipe1.png";
+import shareRecipeIcon from "../assets/ShareRecipe1.png";
 import conversionIcon from "../assets/conversion-icon.png";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://recipe-round-table-0ovf.onrender.com";
 
 const Recipe = () => {
   const { id } = useParams();
@@ -366,7 +369,7 @@ const Recipe = () => {
               src={
                 recipe.recipeUrl.includes("https")
                   ? recipe.recipeUrl
-                  : `http://localhost:3000${recipe.recipeUrl}`
+                  : `${API_URL}${recipe.recipeUrl}`
               }
               className="image"
               alt={recipe.title}
@@ -500,16 +503,16 @@ const Recipe = () => {
           <h3>
             Ingredients
             <img
-              src="../src/assets/conversion-icon.png" // Replace with your icon path
+              src={conversionIcon} // Use imported image
               alt="Conversion Icon"
               title="Toggle Conversion Table"
               className="conversionIcon"
-              onClick={() => setShowConversionTable((prev) => !prev)} // Toggle the table
+              onClick={() => setShowConversionTable((prev) => !prev)}
               style={{
                 cursor: "pointer",
                 marginLeft: "10px",
-                width: "24px", // Adjust as needed
-                height: "24px", // Adjust as needed
+                width: "24px",
+                height: "24px",
               }}
             />
           </h3>
@@ -548,7 +551,7 @@ const Recipe = () => {
         <button className="recipeBtn iconBtn" onClick={handlePrint}>
           <img
             id="printRecipeIcon"
-            src="../src/assets/PrintRecipe1.png"
+            src={printRecipeIcon} // Use imported image
             alt="print recipe icon"
           />
           Print Recipe
@@ -556,7 +559,7 @@ const Recipe = () => {
         <button className="recipeBtn iconBtn" onClick={handleShareRecipe}>
           <img
             id="shareRecipeIcon"
-            src="../src/assets/ShareRecipe1.png"
+            src={shareRecipeIcon} // Use imported image
             alt="share recipe icon"
           />
           Share Recipe
@@ -576,7 +579,7 @@ const Recipe = () => {
                     <div>
                       {!commentDropdownVisible[comment.id] ? (
                         <img
-                          src="../src/assets/report-flag.png"
+                          src={reportFlag} // Reuse the imported variable
                           alt="Report icon"
                           title="Report this comment"
                           className="reportIcon"
