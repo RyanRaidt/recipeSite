@@ -6,6 +6,9 @@ import {
   fetchCategoryById,
 } from "../API/index.js";
 import { API_URL } from "../../../api/config.js";
+import likesIcon from "../assets/likesIcon.png";
+import bookmarksIcon from "../assets/bookmarksIcon.png";
+
 const RecipesList = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -151,14 +154,11 @@ const RecipesList = () => {
                     <h3>{recipe.title}</h3>
                     <div id="likesAndBookmarks">
                       <p>
-                        <img src="../src/assets/likesIcon.png" alt="likes" />{" "}
+                        <img src={likesIcon} alt="likes" />{" "}
                         {recipe._count?.likes || 0}
                       </p>
                       <p>
-                        <img
-                          src="../src/assets/bookmarksIcon.png"
-                          alt="bookmarks"
-                        />{" "}
+                        <img src={bookmarksIcon} alt="bookmarks" />{" "}
                         {recipe._count?.bookmarks || 0}
                       </p>
                     </div>
