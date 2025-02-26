@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import NotificationBell from "./NotificationBell";
 import { SOCKET_URL } from "../../../api/config";
 import { io } from "socket.io-client";
+import searchIcon from "../assets/SearchIcon.png";
 
 const socket = io(SOCKET_URL, {
   transports: ["websocket", "polling"],
@@ -114,17 +115,17 @@ function Navbar({ token, setToken, isAdmin }) {
               handleSearch(); // Trigger search on Enter key press
             }
           }}
-          enterKeyHint="search" 
-          inputMode="search" 
+          enterKeyHint="search"
+          inputMode="search"
         />
 
         <button id="searchBtn" onClick={handleSearch}>
-          <img src="../src/assets/SearchIcon.png" alt="Search Icon" />
+          <img src={searchIcon} alt="Search Icon" />
           Search
         </button>
       </div>
       <div className="notificationBell">
-        {token && <NotificationBell userId={userId}/>}
+        {token && <NotificationBell userId={userId} />}
       </div>
       <div className="dropdownMenu" ref={dropdownRef}>
         <button
@@ -147,11 +148,7 @@ function Navbar({ token, setToken, isAdmin }) {
                 >
                   Profile
                 </Link>
-                <Link
-                  id="latestBtn"
-                  className="header"
-                  to="/latest"
-                >
+                <Link id="latestBtn" className="header" to="/latest">
                   Feed
                 </Link>
                 <Link
