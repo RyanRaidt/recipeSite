@@ -1,35 +1,35 @@
+/* Global Reset */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
+
 :root {
   --black: black;
   --white: #f8f8f0;
 }
+
 body {
-  font-family: "EB Garamond", serif; /* Standard font */
+  font-family: "EB Garamond", serif;
   margin: 0;
 }
+
 .header {
-  font-family: "Uncial Antiqua", serif; /* Font for headers */
+  font-family: "Uncial Antiqua", serif;
 }
+
+/* Background Styling */
 .background {
   background-image: url("./assets/Background.jpg");
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: top;
-  background-attachment: fixed;
+  background-position: center;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
-input::placeholder, textarea::placeholder {
-  color: #4d4d4d;
-}
-.introText {
-  margin: 20px 0 20px 0;
-}
+
 /* Navbar */
 .navbar {
   background-image: url("./assets/openart-image_IOoTSc82_1735921515997_raw.jpg");
@@ -37,21 +37,38 @@ input::placeholder, textarea::placeholder {
   top: 0;
   box-shadow: 0 0 12px var(--black);
   width: 100%;
-  padding: 1px 0;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   z-index: 2;
 }
+
 .navbar a {
-  padding: 0 20px 0 20px;
+  padding: 10px;
   text-decoration: none;
   color: var(--white);
+  font-size: 16px;
 }
-.navbar a:visited,
-.navbar a:active {
-  color: var(--white);
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar a {
+    display: block;
+    padding: 10px 0;
+  }
+
+  .background {
+    background-size: contain;
+  }
 }
+
 .navbar img {
   height: 50px;
   color: var(--white);
