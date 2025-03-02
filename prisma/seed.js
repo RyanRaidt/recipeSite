@@ -104,7 +104,7 @@ const exampleSteps = [
 
   // Seed Recipes
   const recipes = [];
-  const recipeCount = faker.number.int({ min: 150, max: 200 });
+  const recipeCount = faker.number.int({ min: 30, max: 50 });
   console.log(`Seeding ${recipeCount} recipes...`);
   for (let i = 0; i < recipeCount; i++) {
     const selectedSteps = faker.helpers.arrayElement(exampleSteps).map((step, index) => ({

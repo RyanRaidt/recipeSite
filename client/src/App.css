@@ -10,10 +10,6 @@
   --white: #f8f8f0;
 }
 
-html, body {
-  height: 100%;
-}
- 
 body {
   font-family: "EB Garamond", serif;
   margin: 0;
