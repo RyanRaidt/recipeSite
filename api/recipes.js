@@ -199,10 +199,10 @@ router.get("/:id", async (req, res, next) => {
 
 // Update recipe /*edit ingredients inclusively*/
 // PUT /api/recipes/:id
+// PUT /api/recipes/:id
 router.put("/:id", authenticateUser, async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, servingSize, recipeUrl, steps, ingredients, categoryId } =
-    req.body;
+  const { title, description, servingSize, recipeUrl, steps, ingredients, categoryId } = req.body;
 
   try {
     const recipe = await prisma.recipe.findUnique({
@@ -214,9 +214,17 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
     }
 
     if (recipe.userId !== req.user.userId && !req.user.isAdmin) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to update this recipe" });
+      return res.status(403).json({ message: "Unauthorized to update this recipe" });
+    }
+
+    // ✅ Validate `categoryId`
+    if (!categoryId || isNaN(parseInt(categoryId))) {
+      return res.status(400).json({ message: "Invalid or missing categoryId" });
+    }
+
+    // ✅ Validate `ingredients`
+    if (!Array.isArray(ingredients)) {
+      return res.status(400).json({ message: "Invalid ingredients array" });
     }
 
     const updatedRecipe = await prisma.recipe.update({
@@ -228,11 +236,10 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
         recipeUrl,
         steps,
         categories: {
-          connect: { id: parseInt(categoryId) }, // Update category association
+          connect: { categoryId: parseInt(categoryId) }, // 🔥 Ensure correct field name
         },
         ingredients: {
-          /* Update related ingredients */
-          deleteMany: {} /* Delete all existing ingredients */,
+          deleteMany: {}, // Delete all existing ingredients
           create: ingredients.map((ingredient) => ({
             ingredientName: ingredient.ingredientName,
             quantityAmount: ingredient.quantityAmount,
@@ -246,12 +253,10 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
     res.status(200).json(updatedRecipe);
   } catch (error) {
     console.error("Error updating recipe:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to update recipe", error: error.message });
+    res.status(500).json({ message: "Failed to update recipe", error: error.message });
   }
-
 });
+
 
 // Delete recipe (by the user or admin)
 // DELETE /api/recipes/:id
