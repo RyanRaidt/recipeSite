@@ -215,11 +215,15 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
     }
 
     if (recipe.userId !== req.user.userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: "Unauthorized to update this recipe" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to update this recipe" });
     }
 
     // ✅ Validate `categoryId`
-    if (!categoryId || isNaN(parseInt(categoryId))) {
+    // Validate categoryId
+    if (!categoryId || isNaN(parseInt(categoryId)) || categoryId === "") {
+      console.error("❌ Invalid categoryId:", categoryId);
       return res.status(400).json({ message: "Invalid or missing categoryId" });
     }
 

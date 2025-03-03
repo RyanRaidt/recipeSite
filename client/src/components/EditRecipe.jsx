@@ -110,48 +110,57 @@ const EditRecipe = () => {
     setRecipe((prev) => ({ ...prev, steps: updatedSteps }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+   e.preventDefault();
 
-    const formattedSteps = recipe.steps
-      .filter((step) => step.trim())
-      .map((instruction, index) => ({
-        stepNumber: index + 1,
-        instruction,
-      }));
+   const formattedSteps = recipe.steps
+     .filter((step) => step.trim())
+     .map((instruction, index) => ({
+       stepNumber: index + 1,
+       instruction,
+     }));
 
-    const recipeData = {
-      ...recipe, //
-      servingSize: parseInt(recipe.servingSize, 10),
-      steps: formattedSteps,
-      ingredients: recipe.ingredients.map((ingredient) => ({
-        ingredientName: ingredient.name,
-        quantityAmount: ingredient.quantity.toString(),
-        quantityUnit: ingredient.unit,
-      })),
-      categoryId: newSelectedCategoryId,
-    };
+   // ✅ Ensure categoryId is valid
+   const validCategoryId = newSelectedCategoryId || selectedCategory;
+   if (!validCategoryId || isNaN(parseInt(validCategoryId))) {
+     alert("Please select a valid category.");
+     return;
+   }
 
-    try {
-      const response = await fetch(`${API_URL}/api/recipes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(recipeData),
-      });
+   const recipeData = {
+     ...recipe,
+     servingSize: parseInt(recipe.servingSize, 10),
+     steps: formattedSteps,
+     ingredients: recipe.ingredients.map((ingredient) => ({
+       ingredientName: ingredient.name,
+       quantityAmount: ingredient.quantity.toString(),
+       quantityUnit: ingredient.unit,
+     })),
+     categoryId: validCategoryId, // 🔥 Ensure we send a valid categoryId
+   };
 
-      if (!response.ok) {
-        throw new Error("Failed to update recipe.");
-      }
-      alert("Recipe updated successfully!");
-      navigate(`/recipe/${id}`);
-    } catch (error) {
-      console.error("Error updating recipe:", error);
-      setError("Failed to update recipe.");
-    }
-  };
+   try {
+     const response = await fetch(`${API_URL}/api/recipes/${id}`, {
+       method: "PUT",
+       headers: {
+         "Content-Type": "application/json",
+         Authorization: `Bearer ${token}`,
+       },
+       body: JSON.stringify(recipeData),
+     });
+
+     if (!response.ok) {
+       throw new Error("Failed to update recipe.");
+     }
+
+     alert("Recipe updated successfully!");
+     navigate(`/recipe/${id}`);
+   } catch (error) {
+     console.error("Error updating recipe:", error);
+     setError("Failed to update recipe.");
+   }
+ };
+
 
   // Recipe Image Upload (Edit Recipe)
   const handleImageUpload = async (e) => {
