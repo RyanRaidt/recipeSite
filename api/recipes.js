@@ -201,6 +201,7 @@ router.get("/:id", async (req, res, next) => {
 // PUT /api/recipes/:id
 // PUT /api/recipes/:id
 router.put("/:id", authenticateUser, async (req, res, next) => {
+  console.log("Incoming PUT request:", req.body);
   const { id } = req.params;
   const { title, description, servingSize, recipeUrl, steps, ingredients, categoryId } = req.body;
 
