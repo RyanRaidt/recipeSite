@@ -120,8 +120,15 @@ const EditRecipe = () => {
         instruction,
       }));
 
+    // ✅ Ensure categoryId is valid
+    const validCategoryId = newSelectedCategoryId || selectedCategory;
+    if (!validCategoryId || isNaN(parseInt(validCategoryId))) {
+      alert("Please select a valid category.");
+      return;
+    }
+
     const recipeData = {
-      ...recipe, //
+      ...recipe,
       servingSize: parseInt(recipe.servingSize, 10),
       steps: formattedSteps,
       ingredients: recipe.ingredients.map((ingredient) => ({
@@ -129,7 +136,7 @@ const EditRecipe = () => {
         quantityAmount: ingredient.quantity.toString(),
         quantityUnit: ingredient.unit,
       })),
-      categoryId: newSelectedCategoryId,
+      categoryId: validCategoryId, // 🔥 Ensure we send a valid categoryId
     };
 
     try {
@@ -145,6 +152,7 @@ const EditRecipe = () => {
       if (!response.ok) {
         throw new Error("Failed to update recipe.");
       }
+
       alert("Recipe updated successfully!");
       navigate(`/recipe/${id}`);
     } catch (error) {
@@ -152,6 +160,7 @@ const EditRecipe = () => {
       setError("Failed to update recipe.");
     }
   };
+
 
   // Recipe Image Upload (Edit Recipe)
   const handleImageUpload = async (e) => {
