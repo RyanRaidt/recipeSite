@@ -228,8 +228,8 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
         recipeUrl,
         steps,
         categories: {
-            connect: { id: parseInt(categoryId) }, // Update category association
-          },
+          connect: { id: parseInt(categoryId) }, // Update category association
+        },
         ingredients: {
           /* Update related ingredients */
           deleteMany: {} /* Delete all existing ingredients */,
@@ -245,8 +245,12 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
 
     res.status(200).json(updatedRecipe);
   } catch (error) {
-    res.status(500).json({ message: "Failed to update recipe" });
+    console.error("Error updating recipe:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to update recipe", error: error.message });
   }
+
 });
 
 // Delete recipe (by the user or admin)
