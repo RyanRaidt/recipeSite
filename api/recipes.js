@@ -241,13 +241,13 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
         recipeUrl,
         steps,
         categories: {
-          connect: { categoryId: parseInt(categoryId) }, // 🔥 Ensure correct field name
+          connect: { id: parseInt(categoryId) }, // ✅ Corrected field name
         },
         ingredients: {
           deleteMany: {}, // Delete all existing ingredients
           create: ingredients.map((ingredient) => ({
             ingredientName: ingredient.ingredientName,
-            quantityAmount: ingredient.quantityAmount,
+            quantityAmount: ingredient.quantityAmount.toString(),
             quantityUnit: ingredient.quantityUnit,
           })),
         },
