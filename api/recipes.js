@@ -930,22 +930,20 @@ router.post(
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: fileName }, // Store only fileName, not full URL
+        data: { recipeUrl: req.fileUrl }, // ✅ FIX: Use req.fileUrl from uploadMiddleware
       });
 
-
-      res
-        .status(200)
-        .json({
-          message: "Recipe image uploaded successfully",
-          recipeUrl: req.fileUrl,
-        });
+      res.status(200).json({
+        message: "Recipe image uploaded successfully",
+        recipeUrl: req.fileUrl,
+      });
     } catch (error) {
       console.error("Error uploading recipe image:", error);
       res.status(500).json({ message: "Failed to upload recipe image" });
     }
   }
 );
+
 
 router.get("/recommendations", authenticateUser, async (req, res) => {
   const userId = req.user.userId;

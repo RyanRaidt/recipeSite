@@ -24,10 +24,14 @@ const upload = multer({ storage, fileFilter });
 
 // Middleware to upload file to Supabase
 const uploadMiddleware = async (req, res, next) => {
-  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  if (!req.file) {
+    console.error("No file received in request.");
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
   try {
     const fileName = `recipe-images/${Date.now()}-${req.file.originalname}`;
+    console.log("Uploading file:", fileName);
 
     // Upload file to Supabase storage
     const { data, error } = await supabase.storage
@@ -38,20 +42,28 @@ const uploadMiddleware = async (req, res, next) => {
         contentType: req.file.mimetype,
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase Upload Error:", error);
+      return res
+        .status(500)
+        .json({ message: "Error uploading image to Supabase" });
+    }
 
-    // ✅ Correct way to get public URL
-    const publicURL = supabase.storage
+    // ✅ Fix: Correctly get public URL
+    const { publicURL } = supabase.storage
       .from("recipe-images")
       .getPublicUrl(fileName);
-
-    req.fileUrl = publicURL.publicUrl; // Assign the URL for the next middleware
+    req.fileUrl = publicURL;
+    console.log("File uploaded successfully:", req.fileUrl);
 
     next();
   } catch (error) {
-    console.error("Error uploading to Supabase:", error);
-    res.status(500).json({ message: "Error uploading image to Supabase" });
+    console.error("Unexpected error uploading to Supabase:", error);
+    res
+      .status(500)
+      .json({ message: "Unexpected error uploading image to Supabase" });
   }
 };
+
 
 module.exports = { upload, uploadMiddleware };
