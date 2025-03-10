@@ -5,47 +5,49 @@ const prisma = require("../prisma");
 require("dotenv").config();
 const authenticateUser = require("../middleware/authenticateUser");
 const authenticateAdmin = require("../middleware/authenticateAdmin");
-const { parse } = require("dotenv");
 
-// File upload configuration
-const upload = require("./fileUpload");
-const fs = require("fs");
-const path = require("path");
+// Supabase file upload middleware
+const { upload, uploadMiddleware } = require("../middleware/fileUpload");
 
 // Create new recipe by authenticated user /*create ingredients inclusively*/
 // POST /api/recipes
-router.post("/", authenticateUser, upload.single("recipeImage"), async (req, res, next) => {
-  const { title, description, servingSize, steps, ingredients, categoryId } = req.body;
-  const userId = parseInt(req.user.userId);
+router.post(
+  "/",
+  authenticateUser,
+  upload.single("recipeImage"),
+  async (req, res, next) => {
+    const { title, description, servingSize, steps, ingredients, categoryId } =
+      req.body;
+    const userId = parseInt(req.user.userId);
 
-  try {
-    const recipeUrl = req.file ? `/uploads/${req.file.filename}` : null;
-    
-    const recipe = await prisma.recipe.create({
-      data: {
-        title,
-        description,
-        servingSize: parseInt(servingSize),
-        recipeUrl,
-        steps: JSON.parse(steps),
-        userId,
-        categories: {
+    try {
+      const recipeUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+      const recipe = await prisma.recipe.create({
+        data: {
+          title,
+          description,
+          servingSize: parseInt(servingSize),
+          recipeUrl,
+          steps: JSON.parse(steps),
+          userId,
+          categories: {
             connect: { id: parseInt(categoryId) }, // Associate category
           },
-        ingredients: {
-          /* Create related ingredients */ /* Expect an array of ingredient objects*/
-          create: JSON.parse(ingredients).map((ingredient) => ({ 
-            ingredientName: ingredient.ingredientName,
-            quantityAmount: ingredient.quantityAmount,
-            quantityUnit: ingredient.quantityUnit,
-          })),
+          ingredients: {
+            /* Create related ingredients */ /* Expect an array of ingredient objects*/
+            create: JSON.parse(ingredients).map((ingredient) => ({
+              ingredientName: ingredient.ingredientName,
+              quantityAmount: ingredient.quantityAmount,
+              quantityUnit: ingredient.quantityUnit,
+            })),
+          },
         },
-      },
-      include: { ingredients: true },
-    });
+        include: { ingredients: true },
+      });
 
-    // log recipe create activity
-    const newActivity = await prisma.activity.create({
+      // log recipe create activity
+      const newActivity = await prisma.activity.create({
         data: {
           type: "new_recipe",
           userId: userId,
@@ -53,19 +55,20 @@ router.post("/", authenticateUser, upload.single("recipeImage"), async (req, res
         },
       });
 
-    // Notify followers when a user creates a new recipe /*NOTIFICATION */
-    const followers = await prisma.userFollower.findMany({
-      where: { followToUserId: userId },
-      select: { followFromUserId: true }, // ID of followers
-    });
+      // Notify followers when a user creates a new recipe /*NOTIFICATION */
+      const followers = await prisma.userFollower.findMany({
+        where: { followToUserId: userId },
+        select: { followFromUserId: true }, // ID of followers
+      });
 
-    const user = await prisma.user.findUnique({
-      where: { userId },
-      select: { name: true },
-    });
-    
-    const notifications = await Promise.all(
-        followers.map(async (follower) => {  // Create a notification for each follower
+      const user = await prisma.user.findUnique({
+        where: { userId },
+        select: { name: true },
+      });
+
+      const notifications = await Promise.all(
+        followers.map(async (follower) => {
+          // Create a notification for each follower
           return prisma.notification.create({
             data: {
               type: "new_recipe",
@@ -74,7 +77,8 @@ router.post("/", authenticateUser, upload.single("recipeImage"), async (req, res
               fromUserId: userId, // Recipe creator
               recipeId: recipe.recipeId, // New recipe
             },
-            include: { // Populate the notification with fromUser and recipe details
+            include: {
+              // Populate the notification with fromUser and recipe details
               fromUser: { select: { userId: true, name: true } },
               recipe: { select: { recipeId: true, title: true } },
             },
@@ -82,22 +86,23 @@ router.post("/", authenticateUser, upload.single("recipeImage"), async (req, res
         })
       );
 
-    // Emit socket.io notification to each follower
-    if (req.io) {
+      // Emit socket.io notification to each follower
+      if (req.io) {
         notifications.forEach((notification) => {
-            req.io.to(`user-${notification.userId}`).emit('newNotification', notification);
-          });
-    } else {
+          req.io
+            .to(`user-${notification.userId}`)
+            .emit("newNotification", notification);
+        });
+      } else {
         console.error("Socket.IO instance (req.io) is not available");
+      }
+
+      res.status(201).json(recipe);
+    } catch (error) {
+      next(error);
     }
-
-    
-
-    res.status(201).json(recipe);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // Get all recipes
 // GET /api/recipes
@@ -203,7 +208,15 @@ router.get("/:id", async (req, res, next) => {
 router.put("/:id", authenticateUser, async (req, res, next) => {
   console.log("Incoming PUT request:", req.body);
   const { id } = req.params;
-  const { title, description, servingSize, recipeUrl, steps, ingredients, categoryId } = req.body;
+  const {
+    title,
+    description,
+    servingSize,
+    recipeUrl,
+    steps,
+    ingredients,
+    categoryId,
+  } = req.body;
 
   try {
     const recipe = await prisma.recipe.findUnique({
@@ -258,10 +271,11 @@ router.put("/:id", authenticateUser, async (req, res, next) => {
     res.status(200).json(updatedRecipe);
   } catch (error) {
     console.error("Error updating recipe:", error);
-    res.status(500).json({ message: "Failed to update recipe", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update recipe", error: error.message });
   }
 });
-
 
 // Delete recipe (by the user or admin)
 // DELETE /api/recipes/:id
@@ -285,9 +299,9 @@ router.delete("/:id", authenticateUser, async (req, res, next) => {
 
     // Delete the associated image file if it exists and is a local file
     if (recipe.recipeUrl && !recipe.recipeUrl.startsWith("http")) {
-        const imagePath = path.join(__dirname, "../", recipe.recipeUrl);
-        if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-      }
+      const imagePath = path.join(__dirname, "../", recipe.recipeUrl);
+      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    }
 
     await prisma.recipe.delete({
       where: { recipeId: parseInt(id) },
@@ -395,24 +409,24 @@ router.post("/:id/comments", authenticateUser, async (req, res, next) => {
 
     // Log the activity
     const newActivity = await prisma.activity.create({
-        data: {
+      data: {
         type: "comment",
         userId: userId,
         recipeId: parseInt(id), // Use the correct recipe ID
         commentId: newComment.id, // Use the ID of the newly created comment
-    },
-  });
+      },
+    });
 
     // Notify the recipe creator about the new comment /*NOTIFICATION */
     const recipe = await prisma.recipe.findUnique({
       where: { recipeId: parseInt(id) },
       select: { userId: true, title: true },
     });
-    
+
     const fromUser = await prisma.user.findUnique({
       where: { userId: parseInt(userId) },
       select: { name: true },
-    });    
+    });
 
     if (recipe) {
       const notification = await prisma.notification.create({
@@ -423,15 +437,18 @@ router.post("/:id/comments", authenticateUser, async (req, res, next) => {
           fromUserId: parseInt(userId), //Commenter ID
           recipeId: parseInt(id),
         },
-        include: { // Populate the notification with additional details
-            fromUser: { select: { userId: true, name: true } },
-            recipe: { select: { recipeId: true, title: true } },
-            },
-      });      
+        include: {
+          // Populate the notification with additional details
+          fromUser: { select: { userId: true, name: true } },
+          recipe: { select: { recipeId: true, title: true } },
+        },
+      });
 
       // Emit the newNotification to the client in real-time
       if (req.io) {
-        req.io.to(`user-${recipe.userId}`).emit("newNotification", notification);
+        req.io
+          .to(`user-${recipe.userId}`)
+          .emit("newNotification", notification);
       } else {
         console.error("Socket.IO instance (req.io) is not available");
       }
@@ -492,7 +509,10 @@ router.put(
 
 // DELETE /api/recipes/:recipeId/comments/:id
 // Delete a specific comment for a recipe (by author or admin)
-router.delete("/:recipeId/comments/:id", authenticateUser, async (req, res, next) => {
+router.delete(
+  "/:recipeId/comments/:id",
+  authenticateUser,
+  async (req, res, next) => {
     const { id } = req.params; // Comment ID
 
     try {
@@ -569,41 +589,44 @@ router.post("/:id/like", authenticateUser, async (req, res, next) => {
           likeId: newLike.id, // Use the ID of the newly created like
         },
       });
-    };
+    }
 
-      // Notify the recipe creator about the new like (if applicable)
-      const recipe = await prisma.recipe.findUnique({
-        where: { recipeId: parseInt(id) },
-        select: { userId: true, title: true },
+    // Notify the recipe creator about the new like (if applicable)
+    const recipe = await prisma.recipe.findUnique({
+      where: { recipeId: parseInt(id) },
+      select: { userId: true, title: true },
+    });
+
+    const fromUser = await prisma.user.findUnique({
+      where: { userId: parseInt(userId) },
+      select: { name: true },
+    });
+
+    if (likeStatus && recipe) {
+      const notification = await prisma.notification.create({
+        data: {
+          type: "like",
+          message: `${fromUser.name} liked your recipe - "${recipe.title}".`,
+          userId: recipe.userId, // Recipe owner ID
+          fromUserId: parseInt(userId), //Liker ID
+          recipeId: parseInt(id),
+        },
+        include: {
+          // Additional details
+          fromUser: { select: { userId: true, name: true } },
+          recipe: { select: { recipeId: true, title: true } },
+        },
       });
 
-      const fromUser = await prisma.user.findUnique({
-        where: { userId: parseInt(userId) },
-        select: { name: true },
-      });
-
-      if (likeStatus && recipe) {
-        const notification = await prisma.notification.create({
-          data: {
-            type: "like",
-            message: `${fromUser.name} liked your recipe - "${recipe.title}".`,
-            userId: recipe.userId, // Recipe owner ID
-            fromUserId: parseInt(userId), //Liker ID
-            recipeId: parseInt(id),
-          },
-          include: { // Additional details
-            fromUser: { select: { userId: true, name: true } },
-            recipe: { select: { recipeId: true, title: true } },
-            },
-        });
-        
-        // Emit the newNotification
-        if (req.io) {
-            req.io.to(`user-${recipe.userId}`).emit("newNotification", notification);
-          } else {
-            console.error("Socket.IO instance (req.io) is not available");
-          }
+      // Emit the newNotification
+      if (req.io) {
+        req.io
+          .to(`user-${recipe.userId}`)
+          .emit("newNotification", notification);
+      } else {
+        console.error("Socket.IO instance (req.io) is not available");
       }
+    }
 
     const likeCount = await prisma.like.count({
       where: { recipeId: parseInt(id) },
@@ -680,12 +703,12 @@ router.post("/:id/bookmarks", authenticateUser, async (req, res, next) => {
       // Log the activity
       await prisma.activity.create({
         data: {
-            type: "bookmark",
-            userId: parseInt(userId),
-            recipeId: parseInt(id),
-            bookmarkId: newBookmark.bookmarkId,
+          type: "bookmark",
+          userId: parseInt(userId),
+          recipeId: parseInt(id),
+          bookmarkId: newBookmark.bookmarkId,
         },
-    });
+      });
 
       // Notify the recipe creator about the new bookmark
       const recipe = await prisma.recipe.findUnique({
@@ -707,18 +730,21 @@ router.post("/:id/bookmarks", authenticateUser, async (req, res, next) => {
             fromUserId: parseInt(userId), //Bookmarker ID
             recipeId: parseInt(id),
           },
-          include: { // additional details
+          include: {
+            // additional details
             fromUser: { select: { userId: true, name: true } },
             recipe: { select: { recipeId: true, title: true } },
-            },
+          },
         });
 
         // Emit the newNotification
         if (req.io) {
-            req.io.to(`user-${recipe.userId}`).emit("newNotification", notification);
-          } else {
-            console.error("Socket.IO instance (req.io) is not available");
-          }
+          req.io
+            .to(`user-${recipe.userId}`)
+            .emit("newNotification", notification);
+        } else {
+          console.error("Socket.IO instance (req.io) is not available");
+        }
       }
     }
 
@@ -726,13 +752,11 @@ router.post("/:id/bookmarks", authenticateUser, async (req, res, next) => {
       where: { recipeId: parseInt(id) },
     });
 
-    res
-      .status(200)
-      .json({
-        bookmarkStatus,
-        message: "Bookmark status updated",
-        bookmarkCount,
-      });
+    res.status(200).json({
+      bookmarkStatus,
+      message: "Bookmark status updated",
+      bookmarkCount,
+    });
   } catch (error) {
     console.error("Error toggling bookmark status:", error);
     res.status(500).json({ message: "Failed to toggle bookmark status." });
@@ -798,12 +822,10 @@ router.post("/:id/steps", authenticateUser, async (req, res, next) => {
     !Array.isArray(steps) ||
     !steps.every((step) => step.stepNumber && step.instruction)
   ) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Steps must be an array of objects with 'stepNumber' and 'instruction' fields.",
-      });
+    return res.status(400).json({
+      message:
+        "Steps must be an array of objects with 'stepNumber' and 'instruction' fields.",
+    });
   }
 
   try {
@@ -880,9 +902,13 @@ router.post("/:id/report", authenticateUser, async (req, res, next) => {
   }
 });
 
-
 // POST /api/recipes/:id/upload-image
-router.post("/:id/upload-image", authenticateUser, upload.single("recipeImage"), async (req, res) => {
+router.post(
+  "/:id/upload-image",
+  authenticateUser,
+  upload.single("recipeImage"),
+  uploadMiddleware,
+  async (req, res) => {
     try {
       const recipeId = parseInt(req.params.id);
 
@@ -890,64 +916,77 @@ router.post("/:id/upload-image", authenticateUser, upload.single("recipeImage"),
       const recipe = await prisma.recipe.findUnique({ where: { recipeId } });
       if (!recipe) return res.status(404).json({ message: "Recipe not found" });
 
-      // Delete the existing image if it exists and is a local file
-      if (recipe.recipeUrl && !recipe.recipeUrl.startsWith("http")) {
-        const oldImagePath = path.join(__dirname, "../", recipe.recipeUrl);
-        
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath); // Remove the image file
-        } else {
-            console.warn(`File not found for deletion: ${oldImagePath}`);
+      // Delete existing image from Supabase if it exists
+      if (recipe.recipeUrl && recipe.recipeUrl.startsWith("https")) {
+        const filePath = recipe.recipeUrl.split("/recipe-images/")[1];
+        if (filePath) {
+          await supabase.storage
+            .from("recipe-images")
+            .remove([`recipe-images/${filePath}`]);
         }
       }
-  
-      // Save the new image path
-      const recipeUrl = `/uploads/${req.file.filename}`;
+
+      // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl },
+        data: { recipeUrl: req.fileUrl },
       });
 
-      res.status(200).json({ message: "Recipe image uploaded successfully", recipeUrl });
+      res
+        .status(200)
+        .json({
+          message: "Recipe image uploaded successfully",
+          recipeUrl: req.fileUrl,
+        });
     } catch (error) {
       console.error("Error uploading recipe image:", error);
       res.status(500).json({ message: "Failed to upload recipe image" });
     }
-
   }
 );
+
 router.get("/recommendations", authenticateUser, async (req, res) => {
-    const userId = req.user.userId;
+  const userId = req.user.userId;
 
-    try {
-        // Step 1: Fetch user activities
-        const activities = await prisma.activity.findMany({
-            where: { userId },
-            select: { recipeId: true },
-        });
+  try {
+    // Step 1: Fetch user activities
+    const activities = await prisma.activity.findMany({
+      where: { userId },
+      select: { recipeId: true },
+    });
 
-        // Extract unique recipe IDs
-        const recipeIds = [...new Set(activities.map((activity) => activity.recipeId).filter((id) => id !== null && id !== undefined))];
+    // Extract unique recipe IDs
+    const recipeIds = [
+      ...new Set(
+        activities
+          .map((activity) => activity.recipeId)
+          .filter((id) => id !== null && id !== undefined)
+      ),
+    ];
 
-        if (recipeIds.length === 0) {
-            return res.status(200).json([]); // No recommendations
-        }
-
-        // Step 2: Fetch recipes
-        const recipes = await prisma.recipe.findMany({
-            where: { recipeId: { in: recipeIds } },
-            include: {
-                user: { select: { name: true, profileUrl: true } },
-                categories: true,
-                ingredients: true,
-                _count: { select: { likes: true, bookmarks: true } },
-            },
-        });
-
-        return res.status(200).json(recipes);
-    } catch (error) {
-        console.error("Error fetching recommendations:", error);
-        return res.status(500).json({ message: "Failed to fetch recommendations.", error: error.message });
+    if (recipeIds.length === 0) {
+      return res.status(200).json([]); // No recommendations
     }
-});
 
+    // Step 2: Fetch recipes
+    const recipes = await prisma.recipe.findMany({
+      where: { recipeId: { in: recipeIds } },
+      include: {
+        user: { select: { name: true, profileUrl: true } },
+        categories: true,
+        ingredients: true,
+        _count: { select: { likes: true, bookmarks: true } },
+      },
+    });
+
+    return res.status(200).json(recipes);
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    return res
+      .status(500)
+      .json({
+        message: "Failed to fetch recommendations.",
+        error: error.message,
+      });
+  }
+});

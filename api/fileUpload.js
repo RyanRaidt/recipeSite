@@ -1,22 +1,20 @@
 const multer = require("multer");
 const path = require("path");
+const { createClient } = require("@supabase/supabase-js");
 
-// Configure multer for local storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Files saved in "uploads" folder
-  },
+require("dotenv").config();
 
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+// Initialize Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
-    cb(null, uniqueSuffix + path.extname(file.originalname)); // Unique file name
-  },
-});
+// Configure multer for temporary storage
+const storage = multer.memoryStorage(); // Store files in memory before uploading to Supabase
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -24,7 +22,37 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with storage and file filter
 const upload = multer({ storage, fileFilter });
 
-module.exports = upload;
+// Middleware to upload file to Supabase
+const uploadMiddleware = async (req, res, next) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+  try {
+    const fileName = `recipe-images/${Date.now()}-${req.file.originalname}`;
+
+    // Upload file to Supabase storage
+    const { data, error } = await supabase.storage
+      .from("recipe-images")
+      .upload(fileName, req.file.buffer, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: req.file.mimetype,
+      });
+
+    if (error) throw error;
+
+    // Get public URL
+    const { publicURL } = supabase.storage
+      .from("recipe-images")
+      .getPublicUrl(fileName);
+    req.fileUrl = publicURL;
+
+    next();
+  } catch (error) {
+    console.error("Error uploading to Supabase:", error);
+    res.status(500).json({ message: "Error uploading image to Supabase" });
+  }
+};
+
+module.exports = { upload, uploadMiddleware };
