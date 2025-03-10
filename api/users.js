@@ -6,7 +6,8 @@ const authenticateUser = require("../middleware/authenticateUser");
 const authenticateAdmin = require("../middleware/authenticateAdmin");
 
 // Supabase file upload middleware
-const { upload, uploadMiddleware } = require("../middleware/fileUpload");
+const { upload, uploadMiddleware } = require("../api/fileUpload");
+
 
 // GET /api/users
 // Get all users (by admin only)

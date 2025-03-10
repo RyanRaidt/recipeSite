@@ -7,7 +7,8 @@ const authenticateUser = require("../middleware/authenticateUser");
 const authenticateAdmin = require("../middleware/authenticateAdmin");
 
 // Supabase file upload middleware
-const { upload, uploadMiddleware } = require("../middleware/fileUpload");
+const { upload, uploadMiddleware } = require("../api/fileUpload");
+
 
 // Create new recipe by authenticated user /*create ingredients inclusively*/
 // POST /api/recipes
