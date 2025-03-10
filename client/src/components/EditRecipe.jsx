@@ -270,8 +270,8 @@ const EditRecipe = () => {
             <img
               src={
                 recipe.recipeUrl.startsWith("http")
-                  ? recipe.recipeUrl
-                  : `${API_URL}${recipe.recipeUrl}` // Use deployed API URL
+                  ? recipe.recipeUrl // If it's already a full URL, use it
+                  : `https://hanimsecrstspdzwjtgi.supabase.co/storage/v1/object/public/recipe-images/${recipe.recipeUrl}`
               }
               alt="Recipe"
               style={{ width: "200px", height: "auto" }}

@@ -29,7 +29,8 @@ const uploadMiddleware = async (req, res, next) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
   try {
-    const fileName = `recipe-images/${Date.now()}-${req.file.originalname}`;
+    const fileName = `${Date.now()}-${req.file.originalname}`;
+
 
     // Upload file to Supabase storage
     const { data, error } = await supabase.storage

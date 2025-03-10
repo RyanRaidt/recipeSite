@@ -930,8 +930,9 @@ router.post(
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: req.fileUrl },
+        data: { recipeUrl: fileName }, // Store only fileName, not full URL
       });
+
 
       res
         .status(200)
