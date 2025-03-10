@@ -5,10 +5,8 @@ const prisma = require("../prisma");
 const authenticateUser = require("../middleware/authenticateUser");
 const authenticateAdmin = require("../middleware/authenticateAdmin");
 
-// File upload configuration
-const upload = require("./fileUpload");
-const fs = require("fs");
-const path = require("path");
+// Supabase file upload middleware
+const { upload, uploadMiddleware } = require("../middleware/fileUpload");
 
 // GET /api/users
 // Get all users (by admin only)
@@ -338,14 +336,17 @@ router.post("/:id/follow", authenticateUser, async (req, res, next) => {
             userId: parseInt(id),
             fromUserId: currentUserId, //Follower ID
           },
-          include: { // Populate the notification with additional details
+          include: {
+            // Populate the notification with additional details
             fromUser: { select: { userId: true, name: true } },
-            },
+          },
         });
 
         // Emit the newNotification to the client in real-time
         if (req.io) {
-          req.io.to(`user-${parseInt(id)}`).emit("newNotification", notification);
+          req.io
+            .to(`user-${parseInt(id)}`)
+            .emit("newNotification", notification);
         } else {
           console.error("Socket.IO instance (req.io) is not available");
         }
@@ -444,9 +445,13 @@ router.get("/:id/followings", async (req, res, next) => {
   }
 });
 
-
 // POST /api/users/:id/upload-profile
-router.post("/:id/upload-profile", authenticateUser, upload.single("profileImage"), async (req, res) => {
+router.post(
+  "/:id/upload-profile",
+  authenticateUser,
+  upload.single("profileImage"),
+  uploadMiddleware,
+  async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
 
@@ -454,34 +459,22 @@ router.post("/:id/upload-profile", authenticateUser, upload.single("profileImage
       const user = await prisma.user.findUnique({ where: { userId } });
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      // Delete the existing image if it exists and is a local file
-      if (user.profileUrl && !user.profileUrl.startsWith("http")) {
-        // Only delete local (not external URLs)
-        const oldImagePath = path.join(__dirname, "../", user.profileUrl);
-
-        // Ensure file exists before attempting to delete
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
-        } else {
-            console.warn(`File not found for deletion: ${oldImagePath}`);
-        }
-      }
-
-      // Save the new image path
-      const profileUrl = `/uploads/${req.file.filename}`;
+      // Save Supabase file URL
+      const profileUrl = req.fileUrl;
       await prisma.user.update({
         where: { userId },
         data: { profileUrl },
       });
 
-      res.status(200).json({ message: "Profile image uploaded successfully", profileUrl });
+      res
+        .status(200)
+        .json({ message: "Profile image uploaded successfully", profileUrl });
     } catch (error) {
       console.error("Error uploading profile image:", error);
       res.status(500).json({ message: "Failed to upload profile image" });
     }
   }
 );
-
 
 /**
  * Route to toggle admin status for a user
@@ -510,7 +503,9 @@ router.put("/:id/toggle-admin", authenticateAdmin, async (req, res) => {
     });
 
     res.status(200).json({
-      message: `User ${updatedUser.isAdmin ? "promoted to" : "demoted from"} admin.`,
+      message: `User ${
+        updatedUser.isAdmin ? "promoted to" : "demoted from"
+      } admin.`,
       user: updatedUser,
     });
   } catch (error) {
