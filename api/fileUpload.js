@@ -1,7 +1,5 @@
 const multer = require("multer");
-const path = require("path");
 const { createClient } = require("@supabase/supabase-js");
-
 require("dotenv").config();
 
 // Initialize Supabase
@@ -29,8 +27,7 @@ const uploadMiddleware = async (req, res, next) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
   try {
-    const fileName = `${Date.now()}-${req.file.originalname}`;
-
+    const fileName = `recipe-images/${Date.now()}-${req.file.originalname}`;
 
     // Upload file to Supabase storage
     const { data, error } = await supabase.storage
@@ -43,11 +40,12 @@ const uploadMiddleware = async (req, res, next) => {
 
     if (error) throw error;
 
-    // Get public URL
-    const { publicURL } = supabase.storage
+    // ✅ Correct way to get public URL
+    const publicURL = supabase.storage
       .from("recipe-images")
       .getPublicUrl(fileName);
-    req.fileUrl = publicURL;
+
+    req.fileUrl = publicURL.publicUrl; // Assign the URL for the next middleware
 
     next();
   } catch (error) {

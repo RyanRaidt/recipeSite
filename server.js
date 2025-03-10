@@ -22,24 +22,6 @@ app.use(
 // ✅ Ensure OPTIONS requests are properly handled
 app.options("*", cors());
 
-
-
-// Serve static files from the "uploads" folder
-const fs = require("fs");
-const path = require("path");
-
-// ✅ Ensure "uploads/" directory exists
-const uploadDir = path.join(__dirname, "uploads");
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log("✅ 'uploads/' directory created!");
-}
-
-// Serve static files from the "uploads" folder
-app.use("/uploads", express.static("uploads"));
-
-
 // Health Check Endpoint
 let errorLogs = []; // Store logs globally
 
