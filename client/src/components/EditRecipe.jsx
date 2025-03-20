@@ -185,7 +185,7 @@ const EditRecipe = () => {
       // Update state with new image URL
       setRecipe((prev) => ({ ...prev, recipeUrl: response.data.recipeUrl }));
     } catch (error) {
-      console.error("Error uploading profile image:", error);
+      console.error("Error uploading image:", error);
     }
   };
 

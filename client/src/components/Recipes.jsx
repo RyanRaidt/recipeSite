@@ -143,7 +143,7 @@ const RecipesList = () => {
                       src={
                         recipe.recipeUrl.startsWith("http")
                           ? recipe.recipeUrl
-                          : `${API_URL}${recipe.recipeUrl}`
+                          : `https://hanimsecrstspdzwjtgi.supabase.co/storage/v1/object/public/recipe-images/recipe-images/${recipe.recipeUrl}`
                       }
                       className="image"
                       alt={recipe.title}
