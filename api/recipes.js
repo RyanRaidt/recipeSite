@@ -911,6 +911,7 @@ router.post(
   async (req, res) => {
     try {
       console.log(req);
+      console.log(res);
       const recipeId = parseInt(req.params.id);
 
       // Ensure the recipe exists
@@ -930,7 +931,7 @@ router.post(
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: "poop" }, 
+        data: { recipeUrl: req.fileUrl }, 
       });
 
       res.status(200).json({

@@ -53,7 +53,7 @@ const uploadMiddleware = async (req, res, next) => {
     const { publicURL } = supabase.storage
       .from("recipe-images")
       .getPublicUrl(fileName);
-    req.fileUrl = publicURL;
+    req.fileUrl = fileName;
     console.log("File uploaded successfully:", req.fileUrl);
 
     next();
