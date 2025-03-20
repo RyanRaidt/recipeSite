@@ -927,11 +927,12 @@ router.post(
             .remove([`recipe-images/${filePath}`]);
         }
       }
-
+      let splitUrl = req.fileUrl.split("/");
+      let recipeUrl = splitUrl[splitUrl.length - 1];
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: req.fileUrl }, 
+        data: { recipeUrl: recipeUrl },
       });
 
       res.status(200).json({
