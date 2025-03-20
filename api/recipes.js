@@ -910,7 +910,7 @@ router.post(
   uploadMiddleware,
   async (req, res) => {
     try {
-      console.log(JSON.stringify(req));
+      console.log(req);
       const recipeId = parseInt(req.params.id);
 
       // Ensure the recipe exists
