@@ -910,6 +910,7 @@ router.post(
   uploadMiddleware,
   async (req, res) => {
     try {
+      console.log(JSON.stringify(req));
       const recipeId = parseInt(req.params.id);
 
       // Ensure the recipe exists
@@ -929,12 +930,12 @@ router.post(
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: req.fileUrl }, 
+        data: { recipeUrl: "poop" }, 
       });
 
       res.status(200).json({
-        message: "Recipe image uploaded successfully",
-        recipeUrl: req.fileUrl,
+        message: "Recipe image uploaded successfully!",
+        recipeUrl: "req.fileUrl",
       });
     } catch (error) {
       console.error("Error uploading recipe image:", error);
