@@ -181,9 +181,10 @@ const EditRecipe = () => {
           },
         }
       );
-
+      let splitUrl = response.data.recipeUrl.split("/");
+      let recipeUrl = splitUrl[splitUrl.length - 1];
       // Update state with new image URL
-      setRecipe((prev) => ({ ...prev, recipeUrl: response.data.recipeUrl }));
+      setRecipe((prev) => ({ ...prev, recipeUrl: recipeUrl }));
     } catch (error) {
       console.error("Error uploading image:", error);
     }
