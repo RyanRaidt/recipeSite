@@ -22,7 +22,7 @@ router.post(
     const userId = parseInt(req.user.userId);
 
     try {
-      const recipeUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      const recipeUrl = req.fileUrl || null;
 
       const recipe = await prisma.recipe.create({
         data: {
@@ -930,7 +930,7 @@ router.post(
       // Update database with new image URL
       await prisma.recipe.update({
         where: { recipeId },
-        data: { recipeUrl: req.fileUrl }, // ✅ FIX: Use req.fileUrl from uploadMiddleware
+        data: { recipeUrl: req.fileUrl }, 
       });
 
       res.status(200).json({
